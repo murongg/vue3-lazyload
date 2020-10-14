@@ -4,7 +4,10 @@
   "description": "A vue3.x image lazyload plugin",
   "main": "dist/vue3-lazyload.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "tsc --watch",
+    "demo:dev": "vite",
+    "demo:build": "vite build",
+    "test": "jest --config jest.config.js"
   },
   "repository": {
     "type": "git",
@@ -15,5 +18,27 @@
   "bugs": {
     "url": "https://github.com/MuRongXiaoDouBi/vue3-lazyload/issues"
   },
-  "homepage": "https://github.com/MuRongXiaoDouBi/vue3-lazyload#readme"
+  "homepage": "https://github.com/MuRongXiaoDouBi/vue3-lazyload#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.11.6",
+    "@babel/core": "^7.11.6",
+    "@rollup/plugin-babel": "^5.2.1",
+    "@rollup/plugin-node-resolve": "^9.0.0",
+    "@types/jest": "^26.0.14",
+    "@types/node": "^14.11.8",
+    "@vue/compiler-sfc": "^3.0.0-rc.1",
+    "@vue/test-utils": "^2.0.0-beta.6",
+    "assign-deep": "^1.0.1",
+    "babel-jest": "^26.5.2",
+    "jest": "^26.5.3",
+    "jest-serializer-vue": "^2.0.2",
+    "rollup": "^2.29.0",
+    "ts-jest": "^26.4.1",
+    "typescript": "^4.0.3",
+    "vite": "^1.0.0-rc.1",
+    "vue-jest": "^3.0.7"
+  },
+  "dependencies": {
+    "vue": "^3.0.0"
+  }
 }
