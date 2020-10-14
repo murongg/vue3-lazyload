@@ -7,28 +7,25 @@
   />
   <div class="margin"></div>
   <img alt="Vue logo" v-lazy="'/example/assets/logo.png'" />
-  <img alt="Vue logo" v-lazy="'/example/assets/logo.png'" ref="root"  />
+  <img alt="Vue logo" v-lazy="'/example/assets/logo.png'" ref="root" />
   <HelloWorld msg="Hello Vue 3.0 + Vite" />
 </template>
 
 <script>
 import HelloWorld from "./components/HelloWorld.vue";
-import { ref, onMounted } from "vue";
 export default {
   name: "App",
   components: {
     HelloWorld,
   },
-  setup(props, context) {
-    const root = ref(null);
-
-    onMounted(() => {
-      // DOM元素将在初始渲染后分配给ref
-      console.log(root.value.getBoundingClientRect()); // <div>这是根元素</div>
+  created() {
+    this.$Lazyload.config({
+      loading: 'http://covteam.u.qiniudn.com/test19.jpg'
+    })
+    console.log(this.$Lazyload.options);
+    this.$Lazyload.$on("loaded",  (listener) => {
+      console.table(this.$Lazyload.performance());
     });
-    return {
-      root
-    }
   },
 };
 </script>

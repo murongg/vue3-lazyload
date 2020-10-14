@@ -5,6 +5,7 @@ import {
   some,
   find,
   _,
+  assign,
   throttle,
   supportWebp,
   getDPR,
@@ -79,9 +80,9 @@ export default class Lazy {
    * @param  {Object} config params
    * @return
    */
-  // config (options = {}) {
-  //   assign(this.options, options)
-  // }
+  config (options = {}) {
+    assign(this.options, options)
+  }
 
   /**
    * output listener's load performance
@@ -325,7 +326,7 @@ export default class Lazy {
       }
     }
 
-    this.$on = (event: string | number, func: any) => {
+    this.$on = (event: string | number, func: Function) => {
       if (!this.Event.listeners[event]) this.Event.listeners[event] = []
       this.Event.listeners[event].push(func)
     }
@@ -350,7 +351,7 @@ export default class Lazy {
 
     this.$emit = (event: string | number, context: any, inCache: any) => {
       if (!this.Event.listeners[event]) return
-      this.Event.listeners[event].forEach((func: (arg0: any, arg1: any) => any) => func(context, inCache))
+      this.Event.listeners[event].forEach((func: (arg0: any, arg1: any) => void) => func(context, inCache))
     }
   }
   $off(event: any, on: () => void) {
