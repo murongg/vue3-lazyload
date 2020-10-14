@@ -13,8 +13,7 @@ export default {
     const lazy = new Lazy(options)
 
     Vue.config.globalProperties.$Lazyload = lazy
-    console.log(lazy.performance());
-    
+        
     Vue.directive('lazy', {
       mounted: lazy.add.bind(lazy),
       updated: lazy.update.bind(lazy),

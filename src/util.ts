@@ -24,6 +24,7 @@ function checkIntersectionObserver() {
 }
 
 
+
 // CustomEvent polyfill
 // function CustomEvent () {
 //   if (!inBrowser) return
@@ -240,7 +241,7 @@ const loadImageAsync = (item: any, resolve: any, reject: (arg0: string | Event |
   }
 }
 
-const style = (el: Element, prop: string) => {
+const style = (el: HTMLElement, prop: any) => {
   return typeof getComputedStyle !== 'undefined'
     ? getComputedStyle(el, null).getPropertyValue(prop)
     : el.style[prop]

@@ -11,7 +11,7 @@ enum performanceDataEnum {
 }
 
 export default class ReactiveListener {
-    el: HTMLElement | null
+    el: HTMLElement | any
     src: any
     error: any
     loading: any
