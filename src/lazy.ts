@@ -49,12 +49,12 @@ export default class Lazy {
   public $once!: (event: any, func: any) => void
   public $emit!: (event: string | number, context: any, inCache: any) => void
   constructor(options: LazyOptions) {
-    const { preLoad, silent, scale, throttleWait, preLoadTop, error, loading, attempt, listenEvents, adapter, observer, observerOptions } = options
+    const { preLoad = 1.3, silent, scale, throttleWait, preLoadTop, error, loading, attempt, listenEvents, adapter, observer, observerOptions } = options
     this.options = {
       silent: silent,
       dispatchEvent: !!dispatchEvent,
       throttleWait: throttleWait || 200,
-      preLoad: preLoad || 1.3,
+      preLoad: preLoad,
       preLoadTop: preLoadTop || 0,
       error: error || DEFAULT_URL,
       loading: loading || DEFAULT_URL,
@@ -443,12 +443,12 @@ export default class Lazy {
     this.$emit(state, listener, cache)
     this.options.adapter[state] && this.options.adapter[state](listener, this.options)
 
-    if (this.options.dispatchEvent) {
-      const event = new CustomEvent(state, {
-        detail: listener
-      })
-      el.dispatchEvent(event)
-    }
+    // if (this.options.dispatchEvent) {
+    //   const event = new CustomEvent(state, {
+    //     detail: listener
+    //   })
+    //   el.dispatchEvent(event)
+    // }
   }
 
   /**
