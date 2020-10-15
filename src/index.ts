@@ -1,5 +1,5 @@
 import Lazy from './lazy'
-import { App } from 'vue';
+import { App, provide } from 'vue';
 import { Options } from './interface';
 
 export default {
@@ -13,7 +13,7 @@ export default {
     const lazy = new Lazy(options)
 
     Vue.config.globalProperties.$Lazyload = lazy
-        
+    Vue.provide('Lazyload', lazy)
     Vue.directive('lazy', {
       mounted: lazy.add.bind(lazy),
       updated: lazy.update.bind(lazy),

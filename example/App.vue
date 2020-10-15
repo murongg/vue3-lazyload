@@ -12,21 +12,23 @@
 </template>
 
 <script>
+import { inject,provide  } from 'vue';
 import HelloWorld from "./components/HelloWorld.vue";
 export default {
   name: "App",
   components: {
     HelloWorld,
   },
-  created() {
-    this.$Lazyload.config({
+  setup() {
+    const useLazyLoad = inject('Lazyload')
+    useLazyLoad.config({
       loading: 'http://covteam.u.qiniudn.com/test19.jpg'
     })
-    console.log(this.$Lazyload.options);
-    this.$Lazyload.$on("loaded",  (listener) => {
-      console.table(this.$Lazyload.performance());
+    
+    useLazyLoad.$on("loaded",  (listener) => {
+      console.table(useLazyLoad.performance());
     });
-  },
+  }
 };
 </script>
 
