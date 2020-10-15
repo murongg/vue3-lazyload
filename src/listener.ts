@@ -158,7 +158,7 @@ export default class ReactiveListener {
    * try load image and  render it
    * @return
    */
-  load(onFinish: () => void) {
+  load(onFinish: () => void = () => {}) {
     if ((this.attempt > this.options.attempt - 1) && this.state.error) {
       if (!this.options.silent) console.log(`VueLazyload log: ${this.src} tried too more than ${this.options.attempt} times`)
       onFinish()
