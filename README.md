@@ -10,3 +10,4 @@ A vue3.x image lazyload plugin
 - [ ] LazyImage
 - [ ] LazyContainer
 - [ ] overall unit tests
+- [ ] Perfect example
