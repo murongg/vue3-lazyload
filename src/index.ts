@@ -1,8 +1,6 @@
 import Lazy from './lazy'
-import LazyComponent from './lazy-component'
-import LazyImage from './lazy-image'
-import { App, provide } from 'vue';
-import { Options } from './interface';
+import { App } from 'vue';
+import { LazyOptions } from './interface';
 
 export default {
   /**
@@ -11,22 +9,15 @@ export default {
    * @param {App} Vue
    * @param {LazyOptions} options
    */
-  install (Vue: App, options: Options) {
+  install (Vue: App, options: LazyOptions) {
     const lazy = new Lazy(options)
 
-    if (options.lazyComponent) {
-      Vue.component('lazy-component', LazyComponent(lazy))
-    }
-
-    if (options.lazyImage) {
-      Vue.component('lazy-image', LazyImage(lazy))
-    }
     Vue.config.globalProperties.$Lazyload = lazy
     Vue.provide('Lazyload', lazy)
     Vue.directive('lazy', {
-      mounted: lazy.add.bind(lazy),
+      mounted: lazy.mount.bind(lazy),
       updated: lazy.update.bind(lazy),
-      unmounted: lazy.remove.bind(lazy)
+      unmounted: lazy.unmount.bind(lazy)
     })
   }
 }

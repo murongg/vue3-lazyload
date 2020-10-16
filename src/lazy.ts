@@ -1,482 +1,133 @@
-import {
-  inBrowser,
-  CustomEvent,
-  remove,
-  some,
-  find,
-  _,
-  assign,
-  throttle,
-  supportWebp,
-  getDPR,
-  scrollParent,
-  getBestSelectionFromSrcset,
-  isObject,
-  hasIntersectionObserver,
-} from './util'
-import ImageCache from './image-cache'
-import ReactiveListener from './listener'
-import { nextTick,AppConfig } from 'vue'
-import { LazyOptions } from './interface'
-import { MODE_TYPE, DEFAULT_EVENTS as DEFAULT_EVENTS_ENUMS } from './enums'
 
-const DEFAULT_URL = 'http://t7.baidu.com/it/u=378254553,3884800361&fm=79&app=86&f=JPEG?w=1280&h=2030'
-const DEFAULT_EVENTS = [
-  DEFAULT_EVENTS_ENUMS.SCROLL,
-  DEFAULT_EVENTS_ENUMS.WHEEL,
-  DEFAULT_EVENTS_ENUMS.MOUSEWHEEL,
-  DEFAULT_EVENTS_ENUMS.RESIZE,
-  DEFAULT_EVENTS_ENUMS.ANIMATIONEND,
-  DEFAULT_EVENTS_ENUMS.TRANSITIONEND,
-  DEFAULT_EVENTS_ENUMS.TOUCHMOVE
-]
+import { LazyOptions } from './interface';
+import { hasIntersectionObserver, assign } from './util'
+import { DirectiveBinding } from 'vue'
+
 const DEFAULT_OBSERVER_OPTIONS = {
   rootMargin: '0px',
   threshold: 0
 }
 
-export default class Lazy {
-  public version: string = '__VUE_LAZYLOAD_VERSION__'
-  public mode: MODE_TYPE = MODE_TYPE.EVENT
-  public ListenerQueue: any[] = []
-  public TargetIndex: number = 0
-  public TargetQueue: any[] = []
-  public options: LazyOptions
-  private _imageCache: ImageCache
-  public lazyLoadHandler: () => void
-  private _observer!: IntersectionObserver | null
-  public Event!: any
-  public $on!: (event: string | number, func: any) => void
-  public $once!: (event: any, func: any) => void
-  public $emit!: (event: string | number, context: any, inCache: any) => void
-  constructor(options: LazyOptions) {
-    const { preLoad = 1.3, silent, scale, throttleWait, preLoadTop, error, loading, attempt, listenEvents, adapter, observer, observerOptions } = options
-    this.options = {
-      silent: silent,
-      dispatchEvent: !!dispatchEvent,
-      throttleWait: throttleWait || 200,
-      preLoad: preLoad,
-      preLoadTop: preLoadTop || 0,
-      error: error || DEFAULT_URL,
-      loading: loading || DEFAULT_URL,
-      attempt: attempt || 3,
-      scale: scale || getDPR(scale),
-      listenEvents: listenEvents || DEFAULT_EVENTS,
-      hasbind: false,
-      supportWebp: supportWebp(),
-      adapter: adapter || {},
-      observer: !!observer,
-      observerOptions: observerOptions || DEFAULT_OBSERVER_OPTIONS
-    }
-    this._initEvent()
-    this._imageCache = new ImageCache({ max: 200 })
-    this.lazyLoadHandler = throttle(this._lazyLoadHandler.bind(this), this.options.throttleWait)
+const DEFAULT_LOADING = 'data:image/gif;base64,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'
 
-    this.setMode(this.options.observer ? MODE_TYPE.OBSERVER : MODE_TYPE.EVENT)
+/**
+ * Lazyload
+ *
+ * @export
+ * @class Lazy
+ */
+export default class Lazy {
+  public options: LazyOptions
+  private _image!: HTMLElement;
+  private _observer!: IntersectionObserver;
+
+  constructor(options?: LazyOptions) {
+    this.options = {
+      loading: options?.loading || DEFAULT_LOADING,
+      throttleWait: options?.throttleWait || 200,
+      observerOptions: options?.observerOptions || DEFAULT_OBSERVER_OPTIONS
+    }
   }
 
   /**
-   * update config
-   * @param  {Object} config params
-   * @return
+   * merge config
+   *
+   * @param {*} [options={}]
+   * @memberof Lazy
    */
-  config (options = {}) {
+  public config(options = {}) {
     assign(this.options, options)
   }
 
   /**
-   * output listener's load performance
-   * @return {Array}
+   * mount
+   *
+   * @param {HTMLElement} el
+   * @param {DirectiveBinding<string>} binding
+   * @memberof Lazy
    */
-  performance() {
-    let list: any[] = []
-
-    this.ListenerQueue.map((item: { performance: () => any }) => {      
-      list.push(item.performance())
-    })
-
-    return list
-  }
-
-  /*
-   * add lazy component to queue
-   * @param  {Vue} vm lazy component instance
-   * @return
-   */
-  addLazyBox(vm: any) {
-    const el = vm.el as HTMLElement
-    this.ListenerQueue.push(vm)   
-    console.log(vm);
-     
-    if (inBrowser) {
-      this._addListenerTarget(window)
-      this._observer && this._observer.observe(el)      
-      if (el && el.parentNode) {        
-        this._addListenerTarget(el.parentNode)
-      }
+  public mount(el: HTMLElement, binding: DirectiveBinding<string>) {
+    this._image = el
+    this._image.setAttribute("src", this.options.loading || DEFAULT_LOADING)
+    if (!hasIntersectionObserver) {
+      this.loadImages(el, binding.value);
+      throw new Error('not support IntersectionObserver')
     }
-  }
-
-  /*
-   * add image listener to queue
-   * @param  {DOM} el
-   * @param  {object} binding vue directive binding
-   * @param  {vnode} vnode vue directive vnode
-   * @return
-   */
-  add(el: HTMLElement, binding: any, vnode: any) {
-    if (some(this.ListenerQueue, item => item.el === el)) {
-      this.update(el, binding)
-      return nextTick(this.lazyLoadHandler)
-    }
-
-    let { src, loading, error } = this._valueFormatter(binding.value)
-
-    nextTick(() => {
-      src = getBestSelectionFromSrcset(el, this.options.scale) || src
-      this._observer && this._observer.observe(el)
-
-      const container = Object.keys(binding.modifiers)[0]
-      let $parent
-
-      if (container) {
-        $parent = vnode.context.$refs[container]
-        // if there is container passed in, try ref first, then fallback to getElementById to support the original usage
-        $parent = $parent ? $parent.$el || $parent : document.getElementById(container)
-      }
-
-      if (!$parent) {
-        $parent = scrollParent(el)
-      }
-
-      const bindType = binding.arg
-      const elRenderer = this._elRenderer.bind(this)
-      const options = this.options
-      const imageCache = this._imageCache
-      
-      const newListener = new ReactiveListener(
-        el,
-        src,
-        error,
-        loading,
-        bindType,
-        $parent,
-        options,
-        undefined,
-        elRenderer,
-        imageCache
-      )
-
-      this.ListenerQueue.push(newListener)
-
-      if (inBrowser) {
-        this._addListenerTarget(window)
-        this._addListenerTarget($parent)
-      }
-
-      this.lazyLoadHandler()
-      nextTick(() => this.lazyLoadHandler())
-    })
+    this._initIntersectionObserver(el, binding.value)
   }
 
   /**
-  * update image src
-  * @param  {DOM} el
-  * @param  {object} vue directive binding
-  * @return
-  */
-  update(el: HTMLElement, binding: any, vnode?: any) {
-    let { src, loading, error } = this._valueFormatter(binding.value)
-    src = getBestSelectionFromSrcset(el, this.options.scale) || src
-
-    const exist = find(this.ListenerQueue, item => item.el === el)
-    if (!exist) {
-      this.add(el, binding, vnode)
-    } else {
-      exist.update({
-        src,
-        loading,
-        error
-      })
-    }
-    if (this._observer) {
-      this._observer.unobserve(el)
-      this._observer.observe(el)
-    }
-    this.lazyLoadHandler()
-    nextTick(() => this.lazyLoadHandler())
+   * update
+   *
+   * @param {HTMLElement} el
+   * @memberof Lazy
+   */
+  public update(el: HTMLElement) {
+    this._observer.unobserve(el)
+    this._observer.observe(el)
   }
 
   /**
-  * remove listener form list
-  * @param  {DOM} el
-  * @return
-  */
-  remove(el: any) {
-    if (!el) return
-    this._observer && this._observer.unobserve(el)
-    const existItem = find(this.ListenerQueue, item => item.el === el)
-    if (existItem) {
-      this._removeListenerTarget(existItem.$parent)
-      this._removeListenerTarget(window)
-      remove(this.ListenerQueue, existItem)
-      existItem.$destroy()
-    }
-  }
-
-  /*
-   * remove lazy components form list
-   * @param  {Vue} vm Vue instance
-   * @return
+   * unmount
+   *
+   * @param {HTMLElement} el
+   * @memberof Lazy
    */
-  removeComponent(vm: any) {
-    if (!vm) return
-    remove(this.ListenerQueue, vm)
-    const el = vm.el as HTMLElement
-    this._observer && this._observer.unobserve(el)
-    if (vm.$parent && el.parentNode) {
-      this._removeListenerTarget(el.parentNode)
-    }
-    this._removeListenerTarget(window)
+  public unmount(el: HTMLElement) {
+    this._observer.unobserve(el)
   }
 
-  setMode(mode: MODE_TYPE) {
-    if (!hasIntersectionObserver && mode === MODE_TYPE.OBSERVER) {
-      mode = MODE_TYPE.EVENT
-    }
+  /**
+   * force loading
+   *
+   * @param {HTMLElement} el
+   * @param {string} src
+   * @memberof Lazy
+   */
+  public loadImages(el: HTMLElement, src: string) {
+    this._setImageSrc(el, src)
+  }
 
-    this.mode = mode // event or observer
-
-    if (mode === MODE_TYPE.EVENT) {
-      if (this._observer) {
-        this.ListenerQueue.forEach((listener: { el: any }) => {
-          this._observer?.unobserve(listener.el)
-        })
-        this._observer = null
+  /**
+   * set img tag src
+   *
+   * @private
+   * @param {HTMLElement} el
+   * @param {string} src
+   * @memberof Lazy
+   */
+  private _setImageSrc(el: HTMLElement, src: string) {
+    const srcset = el.getAttribute("srcset")
+    if ("img" === el.tagName.toLowerCase()) {
+      if (src) {
+        el.setAttribute('src', src);
       }
-
-      this.TargetQueue.forEach((target: { el: any }) => {
-        this._initListen(target.el, true)
-      })
-    } else {
-      this.TargetQueue.forEach((target: { el: any }) => {
-        this._initListen(target.el, false)
-      })
-      this._initIntersectionObserver()
-    }
-  }
-
-  /*
-  *** Private functions ***
-  */
-
-  /*
-   * add listener target
-   * @param  {DOM} el listener target
-   * @return
-   */
-  _addListenerTarget(el: Node | Window) {
-    if (!el) return
-    let target = find(this.TargetQueue, target => target.el === el)
-    if (!target) {
-      target = {
-        el: el,
-        id: ++this.TargetIndex,
-        childrenCount: 1,
-        listened: true
+      if (srcset) {
+        el.setAttribute('srcset', srcset);
       }
-      this.mode === MODE_TYPE.EVENT && this._initListen(target.el, true)
-      this.TargetQueue.push(target)
     } else {
-      target.childrenCount++
+      el.style.backgroundImage = "url('" + src + "')";
     }
-    return this.TargetIndex
   }
 
-  /*
-   * remove listener target or reduce target childrenCount
-   * @param  {DOM} el or window
-   * @return
+  /**
+   * init IntersectionObserver
+   *
+   * @private
+   * @param {HTMLElement} el
+   * @param {string} src
+   * @memberof Lazy
    */
-  _removeListenerTarget(el: Node | Window) {
-    this.TargetQueue.forEach((target: any, index: any) => {
-      if (target.el === el) {
-        target.childrenCount--
-        if (!target.childrenCount) {
-          this._initListen(target.el, false)
-          this.TargetQueue.splice(index, 1)
-          target = null
+  private _initIntersectionObserver(el: HTMLElement, src: string) {
+    const observerOptions = this.options.observerOptions
+    this._observer = new IntersectionObserver((entries) => {
+      Array.prototype.forEach.call(entries, (entry) => {
+        if (entry.isIntersecting) {
+          this._observer.unobserve(entry.target);
+          this._setImageSrc(el, src)
         }
-      }
-    })
-  }
-
-  /*
-   * add or remove eventlistener
-   * @param  {DOM} el DOM or Window
-   * @param  {boolean} start flag
-   * @return
-   */
-  _initListen(el: { addEventListener: (arg0: any, arg1: any, arg2: any) => void } & { removeEventListener: (arg0: any, arg1: any, arg2: boolean) => void }, start: boolean) {
-    this.options.ListenEvents.forEach((evt: any) => _[start ? 'on' : 'off'](el, evt, this.lazyLoadHandler))
-  }
-
-  _initEvent() {
-    this.Event = {
-      listeners: {
-        loading: [],
-        loaded: [],
-        error: []
-      }
-    }
-
-    this.$on = (event: string | number, func: Function) => {
-      if (!this.Event.listeners[event]) this.Event.listeners[event] = []
-      this.Event.listeners[event].push(func)
-    }
-
-    this.$once = (event: any, func) => {
-      const vm = this
-      function on() {
-        vm.$off(event, on)
-        func.apply(vm, arguments)
-      }
-      this.$on(event, on)
-    }
-
-    this.$off = (event: string | number, func: any) => {
-      if (!func) {
-        if (!this.Event.listeners[event]) return
-        this.Event.listeners[event].length = 0
-        return
-      }
-      remove(this.Event.listeners[event], func)
-    }
-
-    this.$emit = (event: string | number, context: any, inCache: any) => {
-      if (!this.Event.listeners[event]) return
-      this.Event.listeners[event].forEach((func: (arg0: any, arg1: any) => void) => func(context, inCache))
-    }
-  }
-  $off(event: any, on: () => void) {
-    throw new Error('Method not implemented.')
-  }
-
-  /**
-   * find nodes which in viewport and trigger load
-   * @return
-   */
-  _lazyLoadHandler() {
-    const freeList: any[] = []
-    this.ListenerQueue.forEach((listener: { el: { parentNode: any }; checkInView: () => any; load: () => void }, index: any) => {
-      if (!listener.el || !listener.el.parentNode) {
-        freeList.push(listener)
-      }
-      const catIn = listener.checkInView()
-      if (!catIn) return
-      listener.load()
-    })
-    freeList.forEach(item => {
-      remove(this.ListenerQueue, item)
-      item.$destroy()
-    })
-  }
-  /**
-  * init IntersectionObserver
-  * set mode to observer
-  * @return
-  */
-  _initIntersectionObserver() {
-    if (!hasIntersectionObserver) return
-    this._observer = new IntersectionObserver(this._observerHandler.bind(this), this.options.observerOptions)
-    if (this.ListenerQueue.length) {
-      this.ListenerQueue.forEach((listener: { el: any }) => {
-        this._observer?.observe(listener.el)
-      })
-    }
-  }
-
-  /**
-  * init IntersectionObserver
-  * @return
-  */
-  _observerHandler(entries: any[], observer: any) {
-    entries.forEach((entry: { isIntersecting: any; target: any }) => {
-      if (entry.isIntersecting) {
-        this.ListenerQueue.forEach((listener: { el: any; state: { loaded: any }; load: () => void }) => {
-          if (listener.el === entry.target) {
-            if (listener.state.loaded) return this._observer?.unobserve(listener.el)
-            listener.load()
-          }
-        })
-      }
-    })
-  }
-
-  /**
-  * set element attribute with image'url and state
-  * @param  {object} lazyload listener object
-  * @param  {string} state will be rendered
-  * @param  {bool} inCache  is rendered from cache
-  * @return
-  */
-  _elRenderer(listener: ReactiveListener, state: string, cache: any) {
-    if (!listener.el) return
-    const { el, bindType } = listener
-
-    let src
-    switch (state) {
-      case 'loading':
-        src = listener.loading
-        break
-      case 'error':
-        src = listener.error
-        break
-      default:
-        src = listener.src
-        break
-    }
-
-    if (bindType) {
-      el.style[bindType] = 'url("' + src + '")'
-    } else if (el.getAttribute('src') !== src) {
-      el.setAttribute('src', src)
-    }
-
-    el.setAttribute('lazy', state)
-
-    this.$emit(state, listener, cache)
-    this.options.adapter[state] && this.options.adapter[state](listener, this.options)
-
-    // if (this.options.dispatchEvent) {
-    //   const event = new CustomEvent(state, {
-    //     detail: listener
-    //   })
-    //   el.dispatchEvent(event)
-    // }
-  }
-
-  /**
-  * generate loading loaded error image url
-  * @param {string} image's src
-  * @return {object} image's loading, loaded, error url
-  */
-  _valueFormatter(value: any) {
-    let src = value
-    let loading = this.options.loading
-    let error = this.options.error
-
-    // value is object
-    if (isObject(value)) {
-      if (!value.src && !this.options.silent) console.error('Vue Lazyload warning: miss src with ' + value)
-      src = value.src
-      loading = value.loading || this.options.loading
-      error = value.error || this.options.error
-    }
-    return {
-      src,
-      loading,
-      error
-    }
+      });  
+    }, observerOptions);
+    this._observer.observe(this._image)
   }
 }
