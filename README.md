@@ -6,7 +6,7 @@ A vue3.x image lazyload plugin
 - [x] rollup
 - [x] eslint
 - [ ] commitlint & husky
-- [ ] *.d.ts
+- [x] *.d.ts
 - [ ] dispatchEvent handle
 - [ ] Perfect type
 - [ ] LazyComponent
