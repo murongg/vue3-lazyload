@@ -1,9 +1,8 @@
-
 export const inBrowser = typeof window !== 'undefined' && window !== null
 
 export const hasIntersectionObserver = checkIntersectionObserver()
-const isEnumerable = Object.prototype.propertyIsEnumerable;
-const getSymbols = Object.getOwnPropertySymbols;
+const isEnumerable = Object.prototype.propertyIsEnumerable
+const getSymbols = Object.getOwnPropertySymbols
 
 /**
  * is object
@@ -12,7 +11,7 @@ const getSymbols = Object.getOwnPropertySymbols;
  * @returns {boolean}
  */
 export function isObject(val: any): boolean {
-  return typeof val === 'function' || toString.call(val) === '[object Object]';
+  return typeof val === 'function' || toString.call(val) === '[object Object]'
 }
 
 /**
@@ -22,7 +21,7 @@ export function isObject(val: any): boolean {
  * @returns {boolean}
  */
 export function isPrimitive(val: any): boolean {
-  return typeof val === 'object' ? val === null : typeof val !== 'function';
+  return typeof val === 'object' ? val === null : typeof val !== 'function'
 }
 
 /**
@@ -33,8 +32,8 @@ export function isPrimitive(val: any): boolean {
  * @returns {boolean}
  */
 export function isValidKey(key: any): boolean {
-  return key !== '__proto__' && key !== 'constructor' && key !== 'prototype';
-};
+  return key !== '__proto__' && key !== 'constructor' && key !== 'prototype'
+}
 
 /**
  * Check if IntersectionObserver can be used
@@ -51,10 +50,10 @@ export function checkIntersectionObserver(): boolean {
     if (!('isIntersecting' in window.IntersectionObserverEntry.prototype)) {
       Object.defineProperty(window.IntersectionObserverEntry.prototype,
         'isIntersecting', {
-        get: function () {
-          return this.intersectionRatio > 0
-        }
-      })
+          get () {
+            return this.intersectionRatio > 0
+          }
+        })
     }
     return true
   }
@@ -75,24 +74,24 @@ export function checkIntersectionObserver(): boolean {
  */
 function assignSymbols(target: any, ...args: any[]) {
   if (!isObject(target)) {
-    throw new TypeError('expected the first argument to be an object');
+    throw new TypeError('expected the first argument to be an object')
   }
 
   if (args.length === 0 || typeof Symbol !== 'function' || typeof getSymbols !== 'function') {
-    return target;
+    return target
   }
 
-  for (let arg of args) {
-    let names = getSymbols(arg);
+  for (const arg of args) {
+    const names = getSymbols(arg)
 
-    for (let key of names) {
+    for (const key of names) {
       if (isEnumerable.call(arg, key)) {
-        target[key] = arg[key];
+        target[key] = arg[key]
       }
     }
   }
-  return target;
-};
+  return target
+}
 
 /**
  * Deeply assign the values of all enumerable-own-properties and symbols 
@@ -103,23 +102,23 @@ function assignSymbols(target: any, ...args: any[]) {
  * @param {...any[]} args
  * @returns
  */
-export function assign(target: any, ...args: any[]) {
-  let i = 0;
-  if (isPrimitive(target)) target = args[i++];
-  if (!target) target = {};
+export function assign(target: any, ...args: any[]): void {
+  let i = 0
+  if (isPrimitive(target)) target = args[i++]
+  if (!target) target = {}
   for (; i < args.length; i++) {
     if (isObject(args[i])) {
       for (const key of Object.keys(args[i])) {
         if (isValidKey(key)) {
           if (isObject(target[key]) && isObject(args[i][key])) {
-            assign(target[key], args[i][key]);
+            assign(target[key], args[i][key])
           } else {
-            target[key] = args[i][key];
+            target[key] = args[i][key]
           }
         }
       }
-      assignSymbols(target, args[i]);
+      assignSymbols(target, args[i])
     }
   }
-  return target;
-};
+  return target
+}

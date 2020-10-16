@@ -1,5 +1,4 @@
-
-import { LazyOptions } from './interface';
+import { LazyOptions } from './interface'
 import { hasIntersectionObserver, assign } from './util'
 import { DirectiveBinding } from 'vue'
 
@@ -17,7 +16,7 @@ const DEFAULT_LOADING = 'data:image/gif;base64,R0lGODlhgACAAKIAAP///93d3bu7u5mZm
  * @class Lazy
  */
 export default class Lazy {
-  public options: LazyOptions
+  public options: LazyOptions;
   private _image!: HTMLElement;
   private _observer!: IntersectionObserver;
 
@@ -35,7 +34,7 @@ export default class Lazy {
    * @param {*} [options={}]
    * @memberof Lazy
    */
-  public config(options = {}) {
+  public config(options = {}): void {
     assign(this.options, options)
   }
 
@@ -46,11 +45,11 @@ export default class Lazy {
    * @param {DirectiveBinding<string>} binding
    * @memberof Lazy
    */
-  public mount(el: HTMLElement, binding: DirectiveBinding<string>) {
+  public mount(el: HTMLElement, binding: DirectiveBinding<string>): void {
     this._image = el
-    this._image.setAttribute("src", this.options.loading || DEFAULT_LOADING)
+    this._image.setAttribute('src', this.options.loading || DEFAULT_LOADING)
     if (!hasIntersectionObserver) {
-      this.loadImages(el, binding.value);
+      this.loadImages(el, binding.value)
       throw new Error('not support IntersectionObserver')
     }
     this._initIntersectionObserver(el, binding.value)
@@ -62,7 +61,7 @@ export default class Lazy {
    * @param {HTMLElement} el
    * @memberof Lazy
    */
-  public update(el: HTMLElement) {
+  public update(el: HTMLElement): void {
     this._observer.unobserve(el)
     this._observer.observe(el)
   }
@@ -73,7 +72,7 @@ export default class Lazy {
    * @param {HTMLElement} el
    * @memberof Lazy
    */
-  public unmount(el: HTMLElement) {
+  public unmount(el: HTMLElement): void {
     this._observer.unobserve(el)
   }
 
@@ -84,7 +83,7 @@ export default class Lazy {
    * @param {string} src
    * @memberof Lazy
    */
-  public loadImages(el: HTMLElement, src: string) {
+  public loadImages(el: HTMLElement, src: string): void {
     this._setImageSrc(el, src)
   }
 
@@ -96,17 +95,17 @@ export default class Lazy {
    * @param {string} src
    * @memberof Lazy
    */
-  private _setImageSrc(el: HTMLElement, src: string) {
-    const srcset = el.getAttribute("srcset")
-    if ("img" === el.tagName.toLowerCase()) {
+  private _setImageSrc(el: HTMLElement, src: string): void {
+    const srcset = el.getAttribute('srcset')
+    if ('img' === el.tagName.toLowerCase()) {
       if (src) {
-        el.setAttribute('src', src);
+        el.setAttribute('src', src)
       }
       if (srcset) {
-        el.setAttribute('srcset', srcset);
+        el.setAttribute('srcset', srcset)
       }
     } else {
-      el.style.backgroundImage = "url('" + src + "')";
+      el.style.backgroundImage = 'url(\'' + src + '\')'
     }
   }
 
@@ -118,16 +117,16 @@ export default class Lazy {
    * @param {string} src
    * @memberof Lazy
    */
-  private _initIntersectionObserver(el: HTMLElement, src: string) {
+  private _initIntersectionObserver(el: HTMLElement, src: string): void {
     const observerOptions = this.options.observerOptions
     this._observer = new IntersectionObserver((entries) => {
       Array.prototype.forEach.call(entries, (entry) => {
         if (entry.isIntersecting) {
-          this._observer.unobserve(entry.target);
+          this._observer.unobserve(entry.target)
           this._setImageSrc(el, src)
         }
-      });  
-    }, observerOptions);
+      })  
+    }, observerOptions)
     this._observer.observe(this._image)
   }
 }
