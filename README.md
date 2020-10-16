@@ -3,8 +3,8 @@ A vue3.x image lazyload plugin
 
 ## TODO
 - [x] Migrate to typescript
-- [ ] rollup
-- [ ] eslint
+- [x] rollup
+- [x] eslint
 - [ ] commitlint & husky
 - [ ] *.d.ts
 - [ ] dispatchEvent handle
