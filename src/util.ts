@@ -299,7 +299,7 @@ export const _ = {
  * @param {((arg: string | Error | Event) => void)} reject
  * @returns
  */
-export function loadImageAsync(item: { src: string, cors: string }, resolve: (arg: { naturalWidth: number, naturalHeight: number, src: string }) => void, reject: (arg: string | Error | Event) => void) {
+export function loadImageAsync(item: { src?: string, cors?: string }, resolve: (arg: { naturalWidth: number, naturalHeight: number, src: string }) => void, reject: (arg: string | Error | Event) => void) {
   let image = new Image()
   if (!item || !item.src) {
     const err = new Error('image src is required')

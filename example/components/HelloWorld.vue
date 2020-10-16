@@ -1,10 +1,6 @@
-<template>
-  <h1>{{ msg }}</h1>
-  <button @click="count++">count is: {{ count }}</button>
-  <p>Edit <code>components/HelloWorld.vue</code> to test hot module replacement.</p>
-</template>
 
 <script>
+import { h } from 'vue'
 export default {
   name: 'HelloWorld',
   props: {
@@ -14,6 +10,9 @@ export default {
     return {
       count: 0
     }
+  },
+  render() {
+    return h('h1', this.$slots.default)
   }
 }
 </script>

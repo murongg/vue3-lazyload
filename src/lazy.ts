@@ -16,7 +16,7 @@ import {
 } from './util'
 import ImageCache from './image-cache'
 import ReactiveListener from './listener'
-import { nextTick } from 'vue'
+import { nextTick,AppConfig } from 'vue'
 import { LazyOptions } from './interface'
 import { MODE_TYPE, DEFAULT_EVENTS as DEFAULT_EVENTS_ENUMS } from './enums'
 
@@ -91,7 +91,7 @@ export default class Lazy {
   performance() {
     let list: any[] = []
 
-    this.ListenerQueue.map((item: { performance: () => any }) => {
+    this.ListenerQueue.map((item: { performance: () => any }) => {      
       list.push(item.performance())
     })
 
@@ -103,13 +103,16 @@ export default class Lazy {
    * @param  {Vue} vm lazy component instance
    * @return
    */
-  addLazyBox(vm: HTMLElement) {
-    this.ListenerQueue.push(vm)
+  addLazyBox(vm: any) {
+    const el = vm.el as HTMLElement
+    this.ListenerQueue.push(vm)   
+    console.log(vm);
+     
     if (inBrowser) {
       this._addListenerTarget(window)
-      this._observer && this._observer.observe(vm)
-      if (vm && vm.parentNode) {
-        this._addListenerTarget(vm.parentNode)
+      this._observer && this._observer.observe(el)      
+      if (el && el.parentNode) {        
+        this._addListenerTarget(el.parentNode)
       }
     }
   }
@@ -226,12 +229,13 @@ export default class Lazy {
    * @param  {Vue} vm Vue instance
    * @return
    */
-  removeComponent(vm: HTMLElement) {
+  removeComponent(vm: any) {
     if (!vm) return
     remove(this.ListenerQueue, vm)
-    this._observer && this._observer.unobserve(vm)
-    if (vm && vm.parentNode) {
-      this._removeListenerTarget(vm.parentNode)
+    const el = vm.el as HTMLElement
+    this._observer && this._observer.unobserve(el)
+    if (vm.$parent && el.parentNode) {
+      this._removeListenerTarget(el.parentNode)
     }
     this._removeListenerTarget(window)
   }

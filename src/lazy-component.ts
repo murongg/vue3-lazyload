@@ -1,4 +1,4 @@
-import { AppContext, h, onMounted, onUnmounted, reactive, ref, SetupContext, onBeforeUpdate, toRefs } from 'vue'
+import { h } from 'vue'
 import { inBrowser } from './util'
 import Lazy from './lazy'
 
@@ -10,49 +10,48 @@ export default (lazy: Lazy) => {
         default: 'div'
       }
     },
-    setup(props: { tag: string }, context: SetupContext) {
-      const state = reactive({
-        loaded: false
-      })
-      let rect: DOMRect | undefined
-      const show = ref(false)
-      const { tag } = toRefs(props)
-      const root = ref<null | HTMLElement>(null)
-
-      const getRect = () => {
-        rect = root.value?.getBoundingClientRect()
+    render () {
+      return h(this.tag, null, this.show ? this.$slots.default() : null)
+    },
+    data () {
+      return {
+        el: null,
+        state: {
+          loaded: false
+        },
+        rect: {},
+        show: false
       }
-
-      const checkInView = () => {
-        getRect()
-        if (rect) {
-          const topAndBottom = rect.top < window.innerHeight * lazy.options.preLoad && rect.bottom > rect.bottom
-          const leftAndRight = rect.left < window.innerWidth * lazy.options.preLoad && rect.right > 0
-          return inBrowser && topAndBottom && leftAndRight
-        }
-        return false
-      }
-
-      const load = () => {
-        show.value = true
-        state.loaded = true
-        context.emit('show', root)
-      }
-
-      onMounted(() => {
-        lazy.addLazyBox(root.value as HTMLElement)
-        lazy.lazyLoadHandler()
-      })
-
-      onBeforeUpdate(() => {
-        root.value = null
-      })
-      onUnmounted(() => {
-        lazy.removeComponent(root.value as HTMLElement)
-      })
-      return h(tag, {
-        ref: root
-      })
+    },
+    mounted () {
+      this.el = this.$el    
+      console.log(this);
+              
+      lazy.addLazyBox(this)
+      lazy.lazyLoadHandler()
+      
+    },
+    beforeUnmount () {
+      lazy.removeComponent(this)
+    },
+    methods: {
+      getRect () {
+        this.rect = this.$el.getBoundingClientRect()
+      },
+      checkInView () {
+        this.getRect()
+        return inBrowser &&
+                    (this.rect.top < window.innerHeight * lazy.options.preLoad && this.rect.bottom > 0) &&
+                    (this.rect.left < window.innerWidth * lazy.options.preLoad && this.rect.right > 0)
+      },
+      load () {        
+        this.show = true
+        this.state.loaded = true
+        this.$emit('show', this)            
+      },
+      // destroy () {
+      //   return this.$destroy
+      // }
     }
   }
 }

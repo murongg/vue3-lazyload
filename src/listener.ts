@@ -117,7 +117,7 @@ export default class ReactiveListener {
    *  check el is in view
    * @return {Boolean} el is in view
    */
-  checkInView() {
+  checkInView() {    
     this.getRect()
     return (this.rect.top < window.innerHeight * this.options.preLoad && this.rect.bottom > this.options.preLoadTop) &&
       (this.rect.left < window.innerWidth * this.options.preLoad && this.rect.right > 0)

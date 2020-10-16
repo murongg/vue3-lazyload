@@ -6,6 +6,8 @@ import './index.css'
 const app = createApp(App)
 app.use(VueLazyLoad, {
     attempt: 1,
-    observer: true
+    observer: true,
+    // lazyComponent: true,
+    lazyImage: true
 })
 app.mount('#app')
