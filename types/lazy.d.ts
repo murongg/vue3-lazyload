@@ -66,4 +66,15 @@ export default class Lazy {
      * @memberof Lazy
      */
     private _initIntersectionObserver;
+    /**
+     * only listen to image status
+     *
+     * @private
+     * @param {string} src
+     * @param {(string | null)} cors
+     * @param {() => void} success
+     * @param {() => void} error
+     * @memberof Lazy
+     */
+    private _listenImageStatus;
 }
