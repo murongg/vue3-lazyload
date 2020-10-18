@@ -12,7 +12,7 @@ const banner =
     '/*!\n' +
     ' * Vue3-Lazyload.js v' + version + '\n' +
     ' * A Vue3.x image lazyload plugin' + '\n' + 
-    ' * (c) ' + new Date().getFullYear() + ' 木荣 <admin@imuboy.cn>\n' +
+    ' * (c) ' + new Date().getFullYear() + ' MuRong <admin@imuboy.cn>\n' +
     ' * Released under the MIT License.\n' +
     ' */\n'
 
