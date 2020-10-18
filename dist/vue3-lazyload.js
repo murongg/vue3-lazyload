@@ -1,7 +1,7 @@
 /*!
  * Vue3-Lazyload.js v0.1.1
  * A Vue3.x image lazyload plugin
- * (c) 2020 木荣 <admin@imuboy.cn>
+ * (c) 2020 MuRong <admin@imuboy.cn>
  * Released under the MIT License.
  */
 (function (global, factory) {
