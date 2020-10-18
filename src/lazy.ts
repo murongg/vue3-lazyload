@@ -23,7 +23,6 @@ export default class Lazy {
   constructor(options?: LazyOptions) {
     this.options = {
       loading: options?.loading || DEFAULT_LOADING,
-      throttleWait: options?.throttleWait || 200,
       observerOptions: options?.observerOptions || DEFAULT_OBSERVER_OPTIONS,
       error: options?.error || DEFAULT_ERROR
     }
