@@ -154,7 +154,6 @@
         function Lazy(options) {
             this.options = {
                 loading: (options === null || options === void 0 ? void 0 : options.loading) || DEFAULT_LOADING,
-                throttleWait: (options === null || options === void 0 ? void 0 : options.throttleWait) || 200,
                 observerOptions: (options === null || options === void 0 ? void 0 : options.observerOptions) || DEFAULT_OBSERVER_OPTIONS,
                 error: (options === null || options === void 0 ? void 0 : options.error) || DEFAULT_ERROR
             };
