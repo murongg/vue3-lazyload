@@ -28,9 +28,9 @@ $ yarn add vue3-lazyload
 
 ## CDN
 
-CDN: https://unpkg.com/vue3-lazyload/vue3-lazyload.min.js
+CDN: https://unpkg.com/vue3-lazyload/dist/vue3-lazyload.min.js
 ```html
-<script src="https://unpkg.com/vue3-lazyload/vue3-lazyload.min.js"></script>
+<script src="https://unpkg.com/vue3-lazyload/dist/vue3-lazyload.min.js"></script>
 <script>
   Vue.createApp(App).use(VueLazyLoad)
   ...
