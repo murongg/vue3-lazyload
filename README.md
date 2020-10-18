@@ -1,7 +1,7 @@
 # vue3-lazyload
 
 <div style="display:flex;width:100%;justify-content:center;">
-<img src="https://img.shields.io/node/v/vue3-lazylaod" />
+<img src="https://img.shields.io/node/v/vue3-lazyload" />
 <img src="https://img.shields.io/npm/v/vue3-lazyload" />
 <img src="https://img.shields.io/github/package-json/dependency-version/murongg/vue3-lazyload/vue" />
 <img src="https://img.shields.io/github/package-json/dependency-version/murongg/vue3-lazyload/dev/rollup/develop" />

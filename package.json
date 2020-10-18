@@ -15,15 +15,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MuRongXiaoDouBi/vue3-lazyload.git"
+    "url": "git+https://github.com/murongg/vue3-lazyload.git"
   },
   "typings": "types/index.d.ts",
   "author": "木荣 <admin@imuboy.cn>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/MuRongXiaoDouBi/vue3-lazyload/issues"
+    "url": "https://github.com/murongg/vue3-lazyload/issues"
   },
-  "homepage": "https://github.com/MuRongXiaoDouBi/vue3-lazyload#readme",
+  "homepage": "https://github.com/murongg/vue3-lazyload#readme",
   "devDependencies": {
     "@babel/cli": "^7.11.6",
     "@babel/core": "^7.11.6",
