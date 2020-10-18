@@ -1,5 +1,6 @@
 import { createApp, App } from 'vue'
 import LazyLoad from '../src'
+import Lazy from '../src/lazy'
 import 'jest-canvas-mock'
 const AppContanier = {
   template: `
@@ -9,16 +10,29 @@ const AppContanier = {
   `
 }
 let app:App
-
-
+let $Lazyload: Lazy
+const options = {
+  loading: 'loading'
+}
 describe('Vue3-lazyload Test', function () {
   beforeEach(() => {
     app = createApp(AppContanier)
-    app.use(LazyLoad, {
-      preLoad: 1.3
-    })
+    app.use(LazyLoad, options)
+    $Lazyload = app.config.globalProperties['$Lazyload']
   })
   it('install', function () {    
-    expect(app.config.globalProperties['$Lazyload']).not.toBeUndefined()
+    expect($Lazyload instanceof Lazy).toBeTruthy()
+  })
+
+  it('test options', function() {
+    expect($Lazyload.options.loading).toBe(options.loading)
+  })
+
+  it('test merge config', function() {
+    const newOptions = {
+      error: 'error'
+    }
+    $Lazyload.config(newOptions)
+    expect($Lazyload.options.error).toBe(newOptions.error)
   })
 })
