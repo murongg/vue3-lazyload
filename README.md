@@ -7,8 +7,7 @@ A vue3.x image lazyload plugin
 - [x] eslint
 - [ ] commitlint & husky
 - [x] *.d.ts
-- [ ] dispatchEvent handle
-- [ ] Perfect type
+- [x] Perfect type
 - [ ] LazyComponent
 - [ ] LazyImage
 - [ ] LazyContainer
