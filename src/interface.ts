@@ -3,3 +3,9 @@ export interface LazyOptions {
   loading?: string;
   observerOptions?: IntersectionObserverInit;
 }
+
+export interface ValueFormatterObject {
+  src: string,
+  error?: string,
+  loading?: string
+}

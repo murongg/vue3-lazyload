@@ -1,5 +1,5 @@
-import { LazyOptions } from './interface'
-import { hasIntersectionObserver, assign } from './util'
+import { LazyOptions, ValueFormatterObject } from './interface'
+import { hasIntersectionObserver, assign, isObject } from './util'
 import { DirectiveBinding } from 'vue'
 
 const DEFAULT_OBSERVER_OPTIONS = {
@@ -45,14 +45,15 @@ export default class Lazy {
    * @param {DirectiveBinding<string>} binding
    * @memberof Lazy
    */
-  public mount(el: HTMLElement, binding: DirectiveBinding<string>): void {
+  public mount(el: HTMLElement, binding: DirectiveBinding<string | ValueFormatterObject>): void {
     this._image = el
-    this._image.setAttribute('src', this.options.loading || DEFAULT_LOADING)
+    const { src, loading, error } = this._valueFormatter(binding.value)
+    this._image.setAttribute('src', loading || DEFAULT_LOADING)
     if (!hasIntersectionObserver) {
-      this.loadImages(el, binding.value)
+      this.loadImages(el, src, error)
       throw new Error('not support IntersectionObserver')
     }
-    this._initIntersectionObserver(el, binding.value)
+    this._initIntersectionObserver(el, src, error)
   }
 
   /**
@@ -83,8 +84,8 @@ export default class Lazy {
    * @param {string} src
    * @memberof Lazy
    */
-  public loadImages(el: HTMLElement, src: string): void {
-    this._setImageSrc(el, src)
+  public loadImages(el: HTMLElement, src: string, error?: string): void {
+    this._setImageSrc(el, src, error)
   }
 
   /**
@@ -95,7 +96,7 @@ export default class Lazy {
    * @param {string} src
    * @memberof Lazy
    */
-  private _setImageSrc(el: HTMLElement, src: string): void {
+  private _setImageSrc(el: HTMLElement, src: string, error?: string): void {
     const srcset = el.getAttribute('srcset')
     if ('img' === el.tagName.toLowerCase()) {
       if (src) {
@@ -105,9 +106,8 @@ export default class Lazy {
         el.setAttribute('srcset', srcset)
       }
       // eslint-disable-next-line @typescript-eslint/no-empty-function
-      this._listenImageStatus(el as HTMLImageElement, () => {
-      }, () => {
-        el.setAttribute('src', this.options.error || DEFAULT_ERROR)
+      this._listenImageStatus(el as HTMLImageElement, () => {}, () => {
+        el.setAttribute('src', error|| DEFAULT_ERROR)
       })
 
     } else {
@@ -123,13 +123,13 @@ export default class Lazy {
    * @param {string} src
    * @memberof Lazy
    */
-  private _initIntersectionObserver(el: HTMLElement, src: string): void {
+  private _initIntersectionObserver(el: HTMLElement, src: string, error?: string): void {
     const observerOptions = this.options.observerOptions
     this._observer = new IntersectionObserver((entries) => {
       Array.prototype.forEach.call(entries, (entry) => {
         if (entry.isIntersecting) {
           this._observer.unobserve(entry.target)
-          this._setImageSrc(el, src)
+          this._setImageSrc(el, src, error)
         }
       })
     }, observerOptions)
@@ -153,5 +153,29 @@ export default class Lazy {
     image.onerror = () => {
       error()
     }    
+  }
+
+  /**
+   * to do it differently for object and string
+   *
+   * @private
+   * @param {(ValueFormatterObject | string)} value
+   * @returns {*}
+   * @memberof Lazy
+   */
+  public _valueFormatter(value: ValueFormatterObject | string): ValueFormatterObject {
+    let src = value as string
+    let loading = this.options.loading
+    let error = this.options.error
+    if(isObject(value)) {
+      src = (value as ValueFormatterObject).src
+      loading = (value as ValueFormatterObject).loading || this.options.loading
+      error = (value as ValueFormatterObject).error || this.options.error
+    }
+    return {
+      src,
+      loading,
+      error
+    }
   }
 }

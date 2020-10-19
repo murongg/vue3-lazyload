@@ -2,7 +2,6 @@ import { createApp, App, defineComponent, inject } from 'vue'
 import LazyLoad from '../src'
 import Lazy from '../src/lazy'
 import 'jest-canvas-mock'
-import { doc } from 'prettier'
 const AppContanier = {
   template: `
     <div>
