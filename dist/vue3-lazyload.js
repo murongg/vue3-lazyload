@@ -178,12 +178,13 @@
          */
         Lazy.prototype.mount = function (el, binding) {
             this._image = el;
-            this._image.setAttribute('src', this.options.loading || DEFAULT_LOADING);
+            var _a = this._valueFormatter(binding.value), src = _a.src, loading = _a.loading, error = _a.error;
+            this._image.setAttribute('src', loading || DEFAULT_LOADING);
             if (!hasIntersectionObserver) {
-                this.loadImages(el, binding.value);
+                this.loadImages(el, src, error);
                 throw new Error('not support IntersectionObserver');
             }
-            this._initIntersectionObserver(el, binding.value);
+            this._initIntersectionObserver(el, src, error);
         };
         /**
          * update
@@ -211,8 +212,8 @@
          * @param {string} src
          * @memberof Lazy
          */
-        Lazy.prototype.loadImages = function (el, src) {
-            this._setImageSrc(el, src);
+        Lazy.prototype.loadImages = function (el, src, error) {
+            this._setImageSrc(el, src, error);
         };
         /**
          * set img tag src
@@ -222,8 +223,7 @@
          * @param {string} src
          * @memberof Lazy
          */
-        Lazy.prototype._setImageSrc = function (el, src) {
-            var _this = this;
+        Lazy.prototype._setImageSrc = function (el, src, error) {
             var srcset = el.getAttribute('srcset');
             if ('img' === el.tagName.toLowerCase()) {
                 if (src) {
@@ -233,9 +233,8 @@
                     el.setAttribute('srcset', srcset);
                 }
                 // eslint-disable-next-line @typescript-eslint/no-empty-function
-                this._listenImageStatus(el, function () {
-                }, function () {
-                    el.setAttribute('src', _this.options.error || DEFAULT_ERROR);
+                this._listenImageStatus(el, function () { }, function () {
+                    el.setAttribute('src', error || DEFAULT_ERROR);
                 });
             }
             else {
@@ -250,14 +249,14 @@
          * @param {string} src
          * @memberof Lazy
          */
-        Lazy.prototype._initIntersectionObserver = function (el, src) {
+        Lazy.prototype._initIntersectionObserver = function (el, src, error) {
             var _this = this;
             var observerOptions = this.options.observerOptions;
             this._observer = new IntersectionObserver(function (entries) {
                 Array.prototype.forEach.call(entries, function (entry) {
                     if (entry.isIntersecting) {
                         _this._observer.unobserve(entry.target);
-                        _this._setImageSrc(el, src);
+                        _this._setImageSrc(el, src, error);
                     }
                 });
             }, observerOptions);
@@ -279,6 +278,29 @@
             };
             image.onerror = function () {
                 error();
+            };
+        };
+        /**
+         * to do it differently for object and string
+         *
+         * @private
+         * @param {(ValueFormatterObject | string)} value
+         * @returns {*}
+         * @memberof Lazy
+         */
+        Lazy.prototype._valueFormatter = function (value) {
+            var src = value;
+            var loading = this.options.loading;
+            var error = this.options.error;
+            if (isObject(value)) {
+                src = value.src;
+                loading = value.loading || this.options.loading;
+                error = value.error || this.options.error;
+            }
+            return {
+                src: src,
+                loading: loading,
+                error: error
             };
         };
         return Lazy;

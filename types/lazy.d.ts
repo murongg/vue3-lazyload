@@ -1,4 +1,4 @@
-import { LazyOptions } from './interface';
+import { LazyOptions, ValueFormatterObject } from './interface';
 import { DirectiveBinding } from 'vue';
 /**
  * Lazyload
@@ -25,7 +25,7 @@ export default class Lazy {
      * @param {DirectiveBinding<string>} binding
      * @memberof Lazy
      */
-    mount(el: HTMLElement, binding: DirectiveBinding<string>): void;
+    mount(el: HTMLElement, binding: DirectiveBinding<string | ValueFormatterObject>): void;
     /**
      * update
      *
@@ -47,7 +47,7 @@ export default class Lazy {
      * @param {string} src
      * @memberof Lazy
      */
-    loadImages(el: HTMLElement, src: string): void;
+    loadImages(el: HTMLElement, src: string, error?: string): void;
     /**
      * set img tag src
      *
@@ -77,4 +77,13 @@ export default class Lazy {
      * @memberof Lazy
      */
     private _listenImageStatus;
+    /**
+     * to do it differently for object and string
+     *
+     * @private
+     * @param {(ValueFormatterObject | string)} value
+     * @returns {*}
+     * @memberof Lazy
+     */
+    _valueFormatter(value: ValueFormatterObject | string): ValueFormatterObject;
 }
