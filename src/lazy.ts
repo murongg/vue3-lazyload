@@ -16,16 +16,16 @@ const DEFAULT_ERROR = ''
  * @class Lazy
  */
 export default class Lazy {
-  public options: LazyOptions;
+  public options: LazyOptions = {
+    loading: DEFAULT_LOADING,
+    error: DEFAULT_ERROR,
+    observerOptions: DEFAULT_OBSERVER_OPTIONS
+  };
   private _image!: HTMLElement;
   private _observer!: IntersectionObserver;
 
   constructor(options?: LazyOptions) {
-    this.options = {
-      loading: options?.loading || DEFAULT_LOADING,
-      observerOptions: options?.observerOptions || DEFAULT_OBSERVER_OPTIONS,
-      error: options?.error || DEFAULT_ERROR
-    }
+    this.config(options)
   }
 
   /**
@@ -108,7 +108,7 @@ export default class Lazy {
         console.log('success');
       }, () => {
         console.error('error');
-        el.setAttribute('src', this.options.error || '123')
+        el.setAttribute('src', this.options.error || DEFAULT_ERROR)
       })
 
     } else {
