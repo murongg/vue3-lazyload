@@ -104,10 +104,9 @@ export default class Lazy {
       if (srcset) {
         el.setAttribute('srcset', srcset)
       }
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
       this._listenImageStatus(el as HTMLImageElement, () => {
-        console.log('success');
       }, () => {
-        console.error('error');
         el.setAttribute('src', this.options.error || DEFAULT_ERROR)
       })
 
