@@ -147,10 +147,11 @@ var DEFAULT_ERROR = '';
 var Lazy = /** @class */ (function () {
     function Lazy(options) {
         this.options = {
-            loading: (options === null || options === void 0 ? void 0 : options.loading) || DEFAULT_LOADING,
-            observerOptions: (options === null || options === void 0 ? void 0 : options.observerOptions) || DEFAULT_OBSERVER_OPTIONS,
-            error: (options === null || options === void 0 ? void 0 : options.error) || DEFAULT_ERROR
+            loading: DEFAULT_LOADING,
+            error: DEFAULT_ERROR,
+            observerOptions: DEFAULT_OBSERVER_OPTIONS
         };
+        this.config(options);
     }
     /**
      * merge config
@@ -225,11 +226,10 @@ var Lazy = /** @class */ (function () {
             if (srcset) {
                 el.setAttribute('srcset', srcset);
             }
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
             this._listenImageStatus(el, function () {
-                console.log('success');
             }, function () {
-                console.error('error');
-                el.setAttribute('src', _this.options.error || '123');
+                el.setAttribute('src', _this.options.error || DEFAULT_ERROR);
             });
         }
         else {
