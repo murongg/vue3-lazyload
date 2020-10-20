@@ -1,4 +1,4 @@
-import { LazyOptions, ValueFormatterObject } from './interface';
+import { LazyOptions, Lifecycle, ValueFormatterObject } from './types';
 import { DirectiveBinding } from 'vue';
 /**
  * Lazyload
@@ -32,7 +32,7 @@ export default class Lazy {
      * @param {HTMLElement} el
      * @memberof Lazy
      */
-    update(el: HTMLElement): void;
+    update(el: HTMLElement, binding: DirectiveBinding<string | ValueFormatterObject>): void;
     /**
      * unmount
      *
@@ -47,7 +47,7 @@ export default class Lazy {
      * @param {string} src
      * @memberof Lazy
      */
-    loadImages(el: HTMLElement, src: string, error?: string): void;
+    loadImages(el: HTMLElement, src: string, error?: string, lifecycle?: Lifecycle): void;
     /**
      * set img tag src
      *
@@ -93,4 +93,13 @@ export default class Lazy {
      * @memberof Lazy
      */
     _log(callback: () => void): void;
+    /**
+     * lifecycle easy
+     *
+     * @private
+     * @param {LifecycleEnum} life
+     * @param {Lifecycle} [lifecycle]
+     * @memberof Lazy
+     */
+    private _lifecycle;
 }

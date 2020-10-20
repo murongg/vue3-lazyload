@@ -1,5 +1,5 @@
 import { App } from 'vue';
-import { LazyOptions } from './interface';
+import { LazyOptions } from './types';
 declare const _default: {
     /**
      * install plugin
