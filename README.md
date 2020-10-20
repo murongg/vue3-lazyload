@@ -54,7 +54,7 @@ app.mount('#app')
 App.vue:
 ```html
 <template>
-  <img v-lazy="you image url" />
+  <img v-lazy="your image url" />
 </template>
 ```
 
@@ -62,7 +62,7 @@ App.vue:
 
 ```vue
 <template>
-  <img v-lazy="{ src: 'you image url', loading: 'you loading image url', error: 'you error image url' }" />
+  <img v-lazy="{ src: 'your image url', loading: 'your loading image url', error: 'your error image url' }" />
 </template>
 ```
 
