@@ -66,6 +66,28 @@ App.vue:
 </template>
 ```
 
+### use lifecycle
+
+```js
+import { createApp } from 'vue'
+import App from './App.vue'
+import VueLazyLoad from 'vue3-lazyload'
+
+const app = createApp(App)
+app.use(VueLazyLoad, {
+  loading: () => {
+    console.log('loading')
+  },
+  error: () => {
+    console.log('error')
+  },
+  loaded: () => {
+    console.log('loaded')
+  }
+})
+app.mount('#app')
+```
+
 ## Options
 
 |  key   | description  | default | type |
@@ -74,6 +96,15 @@ App.vue:
 | error  | The image used when the image failed to load | -  | string |
 | observerOptions  | IntersectionObserver options | { rootMargin: '0px', threshold: 0.1 } | [IntersectionObserverInit]([链接地址](https://developer.mozilla.org/en-US/docs/Web/API/IntersectionObserver))|
 | silent  | Do not print debug info	 | true  | boolean |
+| lifecycle  | Specify state execution function	 | -  | [Lifecycle](#Lifecycle) |
+
+## Lifecycle
+
+|  key   | description  |
+|  ----  | ----  |
+| loading  | Image loading |
+| loaded  | Image loaded |
+| error  | Image load error |
 
 ## TODO
 - [x] Migrate to typescript

@@ -1,4 +1,4 @@
-import { ValueFormatterObject } from '../src/interface'
+import { ValueFormatterObject } from '../src/types'
 import Lazy from '../src/lazy'
 
 describe('Vue3-lazyload Test', function () {

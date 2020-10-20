@@ -3,5 +3,18 @@ import App from './App.vue'
 import VueLazyLoad from '../src/index'
 
 const app = createApp(App)
-app.use(VueLazyLoad)
+app.use(VueLazyLoad, {
+  silent: true,
+  lifecycle: {
+    loading: () => {
+      console.log('loading')
+    },
+    error: () => {
+      console.log('error')
+    },
+    loaded: () => {
+      console.log('loaded')
+    }
+  }
+})
 app.mount('#app')

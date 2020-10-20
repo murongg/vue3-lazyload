@@ -1,6 +1,6 @@
 import Lazy from './lazy'
 import { App } from 'vue'
-import { LazyOptions } from './interface'
+import { LazyOptions } from './types'
 
 export default {
   /**

@@ -1,4 +1,6 @@
-import { LazyOptions, ValueFormatterObject } from './interface'
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+/* eslint-disable @typescript-eslint/no-empty-function */
+import { LazyOptions, Lifecycle, LifecycleEnum, ValueFormatterObject } from './types'
 import { hasIntersectionObserver, assign, isObject } from './util'
 import { DirectiveBinding } from 'vue'
 
@@ -20,13 +22,14 @@ export default class Lazy {
     loading: DEFAULT_LOADING,
     error: DEFAULT_ERROR,
     observerOptions: DEFAULT_OBSERVER_OPTIONS,
-    silent: true
+    silent: true,
+    lifecycle: {}
   };
   private _image!: HTMLElement;
   private _observer!: IntersectionObserver;
 
-  constructor(options?: LazyOptions) {
-    this.config(options)
+  constructor(options?: LazyOptions) {  
+    this.config(options)      
   }
 
   /**
@@ -48,17 +51,16 @@ export default class Lazy {
    */
   public mount(el: HTMLElement, binding: DirectiveBinding<string | ValueFormatterObject>): void {
     this._image = el
-    const { src, loading, error } = this._valueFormatter(binding.value)
+    const { src, loading, error, lifecycle } = this._valueFormatter(binding.value)
+    this._lifecycle(LifecycleEnum.LOADING, lifecycle)
     this._image.setAttribute('src', loading || DEFAULT_LOADING)
     if (!hasIntersectionObserver) {
-      this.loadImages(el, src, error)
-      if (this.options.silent) {
-        this._log(() => {
-          throw new Error('Not support IntersectionObserver!')
-        })
-      }
+      this.loadImages(el, src, error, lifecycle)
+      this._log(() => {
+        throw new Error('Not support IntersectionObserver!')
+      })
     }
-    this._initIntersectionObserver(el, src, error)
+    this._initIntersectionObserver(el, src, error, lifecycle)
   }
 
   /**
@@ -67,9 +69,10 @@ export default class Lazy {
    * @param {HTMLElement} el
    * @memberof Lazy
    */
-  public update(el: HTMLElement): void {
+  public update(el: HTMLElement, binding: DirectiveBinding<string | ValueFormatterObject>): void {    
     this._observer.unobserve(el)
-    this._observer.observe(el)
+    const { src, error, lifecycle } = this._valueFormatter(binding.value)
+    this._initIntersectionObserver(el, src, error, lifecycle)
   }
 
   /**
@@ -89,8 +92,8 @@ export default class Lazy {
    * @param {string} src
    * @memberof Lazy
    */
-  public loadImages(el: HTMLElement, src: string, error?: string): void {
-    this._setImageSrc(el, src, error)
+  public loadImages(el: HTMLElement, src: string, error?: string, lifecycle?: Lifecycle): void {
+    this._setImageSrc(el, src, error, lifecycle)
   }
 
   /**
@@ -101,28 +104,25 @@ export default class Lazy {
    * @param {string} src
    * @memberof Lazy
    */
-  private _setImageSrc(el: HTMLElement, src: string, error?: string): void {
+  private _setImageSrc(el: HTMLElement, src: string, error?: string, lifecycle?: Lifecycle): void {        
     const srcset = el.getAttribute('srcset')
     if ('img' === el.tagName.toLowerCase()) {
-      if (src) {
-        el.setAttribute('src', src)
-      }
-      if (srcset) {
-        el.setAttribute('srcset', srcset)
-      }
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      if (src) el.setAttribute('src', src)
+      if (srcset) el.setAttribute('srcset', srcset)
       this._listenImageStatus(el as HTMLImageElement, () => {
         this._log(() => {
-          // eslint-disable-next-line no-console
           console.log('Image loaded successfully!')
         })
+        this._lifecycle(LifecycleEnum.LOADED, lifecycle)
       }, () => {
-        el.setAttribute('src', error || DEFAULT_ERROR)
-        this._log(() => {
-          throw new Error('Image failed to load!')
-        })
+        // Fix onload trigger twice, clear onload event
+        // Reload on update
+        el.onload = null
+        this._lifecycle(LifecycleEnum.ERROR, lifecycle)
+        this._observer.disconnect()
+        if (error) el.setAttribute('src', error)
+        this._log(() => { throw new Error('Image failed to load!') })
       })
-
     } else {
       el.style.backgroundImage = 'url(\'' + src + '\')'
     }
@@ -136,13 +136,13 @@ export default class Lazy {
    * @param {string} src
    * @memberof Lazy
    */
-  private _initIntersectionObserver(el: HTMLElement, src: string, error?: string): void {
+  private _initIntersectionObserver(el: HTMLElement, src: string, error?: string, lifecycle?: Lifecycle): void {    
     const observerOptions = this.options.observerOptions
-    this._observer = new IntersectionObserver((entries) => {
+    this._observer = new IntersectionObserver((entries) => {      
       Array.prototype.forEach.call(entries, (entry) => {
         if (entry.isIntersecting) {
           this._observer.unobserve(entry.target)
-          this._setImageSrc(el, src, error)
+          this._setImageSrc(el, src, error, lifecycle)
         }
       })
     }, observerOptions)
@@ -159,13 +159,9 @@ export default class Lazy {
    * @param {() => void} error
    * @memberof Lazy
    */
-  private _listenImageStatus(image: HTMLImageElement, success: () => void, error: () => void) {
-    image.onload = () => {
-      success()
-    }
-    image.onerror = () => {
-      error()
-    }
+  private _listenImageStatus(image: HTMLImageElement, success: ((this: GlobalEventHandlers, ev: Event) => any) | null, error: OnErrorEventHandler) {
+    image.onload = success 
+    image.onerror = error
   }
 
   /**
@@ -180,15 +176,18 @@ export default class Lazy {
     let src = value as string
     let loading = this.options.loading
     let error = this.options.error
+    let lifecycle = this.options.lifecycle
     if (isObject(value)) {
       src = (value as ValueFormatterObject).src
       loading = (value as ValueFormatterObject).loading || this.options.loading
       error = (value as ValueFormatterObject).error || this.options.error
+      lifecycle = ((value as ValueFormatterObject).lifecycle || this.options.lifecycle)
     }
     return {
       src,
       loading,
-      error
+      error,
+      lifecycle
     }
   }
 
@@ -201,6 +200,39 @@ export default class Lazy {
   public _log(callback: () => void): void {
     if (!this.options.silent) {
       callback()
+    }
+  }
+
+  /**
+   * lifecycle easy
+   *
+   * @private
+   * @param {LifecycleEnum} life
+   * @param {Lifecycle} [lifecycle]
+   * @memberof Lazy
+   */
+  private _lifecycle(life: LifecycleEnum, lifecycle?: Lifecycle): void {            
+    switch (life) {
+    case LifecycleEnum.LOADING:
+      this._image.setAttribute('lazy', LifecycleEnum.LOADING)
+      if (lifecycle?.loading) {
+        lifecycle.loading()
+      }
+      break
+    case LifecycleEnum.LOADED:
+      this._image.setAttribute('lazy', LifecycleEnum.LOADED)
+      if (lifecycle?.loaded) {
+        lifecycle.loaded()
+      }
+      break
+    case LifecycleEnum.ERROR:
+      this._image.setAttribute('lazy', LifecycleEnum.ERROR)      
+      if (lifecycle?.error) {
+        lifecycle.error()
+      }
+      break
+    default:
+      break
     }
   }
 }
