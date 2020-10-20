@@ -80,7 +80,7 @@ export default class Lazy {
     /**
      * to do it differently for object and string
      *
-     * @private
+     * @public
      * @param {(ValueFormatterObject | string)} value
      * @returns {*}
      * @memberof Lazy
