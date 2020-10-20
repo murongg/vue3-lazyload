@@ -113,9 +113,9 @@ app.mount('#app')
 - [x] overall unit tests
 - [x] *.d.ts
 - [x] Perfect type
+- [x] lifecycle
 - [ ] LazyComponent
 - [ ] LazyImage
 - [ ] LazyContainer
 - [ ] Perfect example
-- [ ] lifecycle
 - [ ] commitlint & husky
