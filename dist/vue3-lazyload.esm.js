@@ -4,6 +4,7 @@
  * (c) 2020 MuRong <admin@imuboy.cn>
  * Released under the MIT License.
  */
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 var inBrowser = typeof window !== 'undefined' && window !== null;
 var hasIntersectionObserver = checkIntersectionObserver();
 var isEnumerable = Object.prototype.propertyIsEnumerable;
@@ -149,7 +150,8 @@ var Lazy = /** @class */ (function () {
         this.options = {
             loading: DEFAULT_LOADING,
             error: DEFAULT_ERROR,
-            observerOptions: DEFAULT_OBSERVER_OPTIONS
+            observerOptions: DEFAULT_OBSERVER_OPTIONS,
+            silent: true
         };
         this.config(options);
     }
@@ -176,7 +178,11 @@ var Lazy = /** @class */ (function () {
         this._image.setAttribute('src', loading || DEFAULT_LOADING);
         if (!hasIntersectionObserver) {
             this.loadImages(el, src, error);
-            throw new Error('not support IntersectionObserver');
+            if (this.options.silent) {
+                this._log(function () {
+                    throw new Error('Not support IntersectionObserver!');
+                });
+            }
         }
         this._initIntersectionObserver(el, src, error);
     };
@@ -218,6 +224,7 @@ var Lazy = /** @class */ (function () {
      * @memberof Lazy
      */
     Lazy.prototype._setImageSrc = function (el, src, error) {
+        var _this = this;
         var srcset = el.getAttribute('srcset');
         if ('img' === el.tagName.toLowerCase()) {
             if (src) {
@@ -227,8 +234,16 @@ var Lazy = /** @class */ (function () {
                 el.setAttribute('srcset', srcset);
             }
             // eslint-disable-next-line @typescript-eslint/no-empty-function
-            this._listenImageStatus(el, function () { }, function () {
+            this._listenImageStatus(el, function () {
+                _this._log(function () {
+                    // eslint-disable-next-line no-console
+                    console.log('Image loaded successfully!');
+                });
+            }, function () {
                 el.setAttribute('src', error || DEFAULT_ERROR);
+                _this._log(function () {
+                    throw new Error('Image failed to load!');
+                });
             });
         }
         else {
@@ -296,6 +311,17 @@ var Lazy = /** @class */ (function () {
             loading: loading,
             error: error
         };
+    };
+    /**
+     * log
+     *
+     * @param {() => void} callback
+     * @memberof Lazy
+     */
+    Lazy.prototype._log = function (callback) {
+        if (!this.options.silent) {
+            callback();
+        }
     };
     return Lazy;
 }());

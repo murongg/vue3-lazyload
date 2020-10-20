@@ -86,4 +86,11 @@ export default class Lazy {
      * @memberof Lazy
      */
     _valueFormatter(value: ValueFormatterObject | string): ValueFormatterObject;
+    /**
+     * log
+     *
+     * @param {() => void} callback
+     * @memberof Lazy
+     */
+    _log(callback: () => void): void;
 }
