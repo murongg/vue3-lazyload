@@ -73,6 +73,7 @@ App.vue:
 | loading  | The image used when the image is loaded | - | string |
 | error  | The image used when the image failed to load | -  | string |
 | observerOptions  | IntersectionObserver options | { rootMargin: '0px', threshold: 0.1 } | [IntersectionObserverInit]([链接地址](https://developer.mozilla.org/en-US/docs/Web/API/IntersectionObserver))|
+| silent  | Do not print debug info	 | true  | boolean |
 
 ## TODO
 - [x] Migrate to typescript

@@ -19,7 +19,8 @@ export default class Lazy {
   public options: LazyOptions = {
     loading: DEFAULT_LOADING,
     error: DEFAULT_ERROR,
-    observerOptions: DEFAULT_OBSERVER_OPTIONS
+    observerOptions: DEFAULT_OBSERVER_OPTIONS,
+    silent: true
   };
   private _image!: HTMLElement;
   private _observer!: IntersectionObserver;
@@ -51,7 +52,11 @@ export default class Lazy {
     this._image.setAttribute('src', loading || DEFAULT_LOADING)
     if (!hasIntersectionObserver) {
       this.loadImages(el, src, error)
-      throw new Error('not support IntersectionObserver')
+      if (this.options.silent) {
+        this._log(() => {
+          throw new Error('Not support IntersectionObserver!')
+        })
+      }
     }
     this._initIntersectionObserver(el, src, error)
   }
@@ -106,8 +111,16 @@ export default class Lazy {
         el.setAttribute('srcset', srcset)
       }
       // eslint-disable-next-line @typescript-eslint/no-empty-function
-      this._listenImageStatus(el as HTMLImageElement, () => {}, () => {
-        el.setAttribute('src', error|| DEFAULT_ERROR)
+      this._listenImageStatus(el as HTMLImageElement, () => {
+        this._log(() => {
+          // eslint-disable-next-line no-console
+          console.log('Image loaded successfully!')
+        })
+      }, () => {
+        el.setAttribute('src', error || DEFAULT_ERROR)
+        this._log(() => {
+          throw new Error('Image failed to load!')
+        })
       })
 
     } else {
@@ -152,7 +165,7 @@ export default class Lazy {
     }
     image.onerror = () => {
       error()
-    }    
+    }
   }
 
   /**
@@ -167,7 +180,7 @@ export default class Lazy {
     let src = value as string
     let loading = this.options.loading
     let error = this.options.error
-    if(isObject(value)) {
+    if (isObject(value)) {
       src = (value as ValueFormatterObject).src
       loading = (value as ValueFormatterObject).loading || this.options.loading
       error = (value as ValueFormatterObject).error || this.options.error
@@ -176,6 +189,18 @@ export default class Lazy {
       src,
       loading,
       error
+    }
+  }
+
+  /**
+   * log
+   *
+   * @param {() => void} callback
+   * @memberof Lazy
+   */
+  public _log(callback: () => void): void {
+    if (!this.options.silent) {
+      callback()
     }
   }
 }

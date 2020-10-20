@@ -26,4 +26,15 @@ describe('Vue3-lazyload Test', function () {
     expect(result).toEqual(options)
   })
 
+  it('test _log', function () {
+    lazy.config({silent: false})
+    let ThrowError
+    lazy._log(() => {
+      ThrowError = () => {
+        throw new Error('test error')
+      }
+    })
+    expect(ThrowError).toThrowError()
+  })
+
 })

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 export const inBrowser = typeof window !== 'undefined' && window !== null
 
 export const hasIntersectionObserver = checkIntersectionObserver()
