@@ -1,3 +1,15 @@
+### [0.2.1](https://github.com/murongg/vue3-lazyload/compare/0.2.0...0.2.1) (2020-10-21)
+
+
+### Features
+
+* **chore:** add commitlint&husky&changelog ([cabbd43](https://github.com/murongg/vue3-lazyload/commit/cabbd43b7ac3203d5e30c7f8be98ad2e0c4e2026))
+
+
+### Bug Fixes
+
+* update vue version caused a serious error ([f33bf8d](https://github.com/murongg/vue3-lazyload/commit/f33bf8d570a18de6ee1e65ebd9d64d1c3dfc2157))
+
 # [0.2.0](https://github.com/murongg/vue3-lazyload/compare/0.1.1...0.2.0) (2020-10-21)
 
 
