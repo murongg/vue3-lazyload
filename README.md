@@ -66,7 +66,9 @@ App.vue:
 </template>
 ```
 
-### use lifecycle
+### Use lifecycle
+
+In main.js
 
 ```js
 import { createApp } from 'vue'
@@ -86,6 +88,72 @@ app.use(VueLazyLoad, {
   }
 })
 app.mount('#app')
+```
+
+or
+
+In xxx.vue
+> Have to be aware of is v-lazy don't use v-lazy="lazyOptions", in this case, vue cannot monitor data changes.
+
+```vue
+<template>
+  <img v-lazy="{src: lazyOptions.src, lifecycle: lazyOptions.lifecycle}" width="100"> 
+</template>
+
+<script>
+import { reactive } from 'vue'
+export default {
+  name: 'App',
+  setup() {
+    const lazyOptions = reactive({
+      src: 'your image url',
+      lifecycle: {
+        loading: () => {
+          console.log('image loading')
+        },
+        error: () => {
+          console.log('image error')
+        },
+        loaded: () => {
+          console.log('image loaded')
+        }
+      }
+    })
+    return {
+      lazyOptions,
+    }
+  }
+}
+</script>
+
+```
+
+#### Use css state
+
+There are three states while image loading.  
+You can take advantage of this feature, make different css controls for different states.  
+
+- `loading` 
+- `loaded` 
+- `error`
+
+```html
+<img src="..." lazy="loading">
+<img src="..." lazy="loaded">
+<img src="..." lazy="error">
+```
+```css
+<style>
+  img[lazy=loading] {
+    /*your style here*/
+  }
+  img[lazy=error] {
+    /*your style here*/
+  }
+  img[lazy=loaded] {
+    /*your style here*/
+  }
+</style>
 ```
 
 ## Options
