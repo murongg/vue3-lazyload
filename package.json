@@ -12,7 +12,8 @@
     "lint": "eslint -c ./.eslintrc --fix --ext .jsx,.js,.vue,.ts,.tsx ./src",
     "build": "node rollup.config.js && tsc -d --declarationDir types --emitDeclarationOnly",
     "changelog": "conventional-changelog -p conventionalcommits -i CHANGELOG.md -s -n .convention-changelog-config.js",
-    "test": "jest --config jest.config.js"
+    "test": "jest --config jest.config.js",
+    "commit": "git-cz"
   },
   "repository": {
     "type": "git",
@@ -23,6 +24,11 @@
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/murongg/vue3-lazyload/issues"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   },
   "homepage": "https://github.com/murongg/vue3-lazyload#readme",
   "devDependencies": {
@@ -46,6 +52,7 @@
     "babel-preset-env": "^1.7.0",
     "conventional-changelog": "^3.1.23",
     "conventional-changelog-cli": "^2.1.0",
+    "cz-conventional-changelog": "^3.3.0",
     "eslint": "^7.11.0",
     "eslint-config-prettier": "^6.12.0",
     "eslint-plugin-vue": "^7.0.1",
