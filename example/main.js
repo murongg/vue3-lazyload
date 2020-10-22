@@ -4,7 +4,7 @@ import VueLazyLoad from '../src/index'
 
 const app = createApp(App)
 app.use(VueLazyLoad, {
-  silent: true,
+  log: true,
   lifecycle: {
     loading: () => {
       console.log('loading')

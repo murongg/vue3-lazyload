@@ -22,7 +22,7 @@ export default class Lazy {
     loading: DEFAULT_LOADING,
     error: DEFAULT_ERROR,
     observerOptions: DEFAULT_OBSERVER_OPTIONS,
-    silent: true,
+    log: true,
     lifecycle: {}
   };
   private _image!: HTMLElement;
@@ -198,7 +198,7 @@ export default class Lazy {
    * @memberof Lazy
    */
   public _log(callback: () => void): void {
-    if (!this.options.silent) {
+    if (this.options.log) {
       callback()
     }
   }

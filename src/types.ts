@@ -2,7 +2,7 @@ export interface LazyOptions {
   error?: string;
   loading?: string;
   observerOptions?: IntersectionObserverInit;
-  silent?: boolean;
+  log?: boolean;
   lifecycle?: Lifecycle;
 }
 
