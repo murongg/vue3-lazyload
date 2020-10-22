@@ -159,7 +159,7 @@ var Lazy = /** @class */ (function () {
             loading: DEFAULT_LOADING,
             error: DEFAULT_ERROR,
             observerOptions: DEFAULT_OBSERVER_OPTIONS,
-            silent: true,
+            log: true,
             lifecycle: {}
         };
         this.config(options);
@@ -328,7 +328,7 @@ var Lazy = /** @class */ (function () {
      * @memberof Lazy
      */
     Lazy.prototype._log = function (callback) {
-        if (!this.options.silent) {
+        if (!this.options.log) {
             callback();
         }
     };
