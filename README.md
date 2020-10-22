@@ -18,14 +18,20 @@
 A vue3.x image lazyload plugin.  
 <br />
 
-## Installation
+## 🚀 Features
+- ⚡ **0 dependencies:** No worry about your bundle size
+- 🦾 **Type Strong:** Written in Typescript
+- 💪 **Small Size:** Only 4kb
+- 🌎 **Browser support:** Use it through CDN
+
+## 📎 Installation
 ```sh
 $ npm i vue3-lazyload
 # or
 $ yarn add vue3-lazyload
 ```
 
-## CDN
+## 🌎 CDN
 
 CDN: https://unpkg.com/vue3-lazyload/dist/vue3-lazyload.min.js
 ```html
@@ -36,7 +42,7 @@ CDN: https://unpkg.com/vue3-lazyload/dist/vue3-lazyload.min.js
 </script>
 ```
 
-## Usage
+## 👽 Usage
 
 main.js:
 
@@ -156,7 +162,7 @@ You can take advantage of this feature, make different css controls for differen
 </style>
 ```
 
-## Options
+## 📁 Options
 
 |  key   | description  | default | type |
 |  ----  | ----  | ----  | ----  |
@@ -166,7 +172,7 @@ You can take advantage of this feature, make different css controls for differen
 | silent  | Do not print debug info	 | true  | boolean |
 | lifecycle  | Specify state execution function	 | -  | [Lifecycle](#Lifecycle) |
 
-## Lifecycle
+## ⛱ Lifecycle Hooks
 
 |  key   | description  |
 |  ----  | ----  |
@@ -174,7 +180,7 @@ You can take advantage of this feature, make different css controls for differen
 | loaded  | Image loaded |
 | error  | Image load error |
 
-## TODO
+## 📄 TODO
 - [x] Migrate to typescript
 - [x] rollup
 - [x] eslint
@@ -182,8 +188,8 @@ You can take advantage of this feature, make different css controls for differen
 - [x] *.d.ts
 - [x] Perfect type
 - [x] lifecycle
+- [x] commitlint & husky
 - [ ] LazyComponent
 - [ ] LazyImage
 - [ ] LazyContainer
 - [ ] Perfect example
-- [ ] commitlint & husky
