@@ -334,7 +334,7 @@
          * @memberof Lazy
          */
         Lazy.prototype._log = function (callback) {
-            if (!this.options.log) {
+            if (this.options.log) {
                 callback();
             }
         };
