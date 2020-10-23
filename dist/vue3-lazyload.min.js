@@ -1,5 +1,5 @@
 /*!
- * Vue3-Lazyload.js v0.2.1
+ * Vue3-Lazyload.js v0.2.2-beta
  * A Vue3.x image lazyload plugin
  * (c) 2020 MuRong <admin@imuboy.cn>
  * Released under the MIT License.
