@@ -234,12 +234,9 @@ var Lazy = /** @class */ (function () {
      */
     Lazy.prototype._setImageSrc = function (el, src, error, lifecycle) {
         var _this = this;
-        var srcset = el.getAttribute('srcset');
         if ('img' === el.tagName.toLowerCase()) {
             if (src)
                 el.setAttribute('src', src);
-            if (srcset)
-                el.setAttribute('srcset', srcset);
             this._listenImageStatus(el, function () {
                 _this._log(function () {
                     console.log('Image loaded successfully!');
