@@ -1,6 +1,6 @@
 {
   "name": "vue3-lazyload",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "A Vue3.x image lazyload plugin",
   "main": "dist/vue3-lazyload.js",
   "module": "dist/vue3-lazyload.esm.js",
@@ -11,7 +11,7 @@
     "demo:build": "vite build",
     "lint": "eslint -c ./.eslintrc --fix --ext .jsx,.js,.vue,.ts,.tsx ./src",
     "build": "node rollup.config.js && tsc -d --declarationDir types --emitDeclarationOnly",
-    "changelog": "conventional-changelog -p conventionalcommits -i CHANGELOG.md -s -n .convention-changelog-config.js",
+    "changelog": "conventional-changelog -p conventionalcommits -i CHANGELOG.md -s -r 0 -n .convention-changelog-config.js",
     "test": "jest --config jest.config.js",
     "commit": "git-cz"
   },
