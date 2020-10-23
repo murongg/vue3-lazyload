@@ -105,10 +105,8 @@ export default class Lazy {
    * @memberof Lazy
    */
   private _setImageSrc(el: HTMLElement, src: string, error?: string, lifecycle?: Lifecycle): void {        
-    const srcset = el.getAttribute('srcset')
     if ('img' === el.tagName.toLowerCase()) {
       if (src) el.setAttribute('src', src)
-      if (srcset) el.setAttribute('srcset', srcset)
       this._listenImageStatus(el as HTMLImageElement, () => {
         this._log(() => {
           console.log('Image loaded successfully!')
