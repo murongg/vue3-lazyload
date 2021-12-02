@@ -106,11 +106,13 @@ export default class Lazy {
    */
   private _setImageSrc(el: HTMLElement, src: string, error?: string, lifecycle?: Lifecycle): void {        
     if ('img' === el.tagName.toLowerCase()) {
-      if (src) el.setAttribute('src', src)
+      if (src){
+        const preSrc = el.getAttribute('src')
+        if(preSrc !== src){
+          el.setAttribute('src', src)
+        }
+      }
       this._listenImageStatus(el as HTMLImageElement, () => {
-        this._log(() => {
-          console.log('Image loaded successfully!')
-        })
         this._lifecycle(LifecycleEnum.LOADED, lifecycle)
       }, () => {
         // Fix onload trigger twice, clear onload event
