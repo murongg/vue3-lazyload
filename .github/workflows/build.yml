@@ -48,6 +48,7 @@ jobs:
         uses: crazy-max/ghaction-github-pages@v2
         with:
           target_branch: develop
+          build_dir: /
         env:
           # @see https://docs.github.com/cn/actions/reference/authentication-in-a-workflow#about-the-github_token-secret
           GITHUB_TOKEN: ${{ secrets.ACTIONS_DEPLOY_KEY }}
