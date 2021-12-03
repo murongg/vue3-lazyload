@@ -8,8 +8,7 @@ import { DirectiveBinding } from 'vue';
  */
 export default class Lazy {
     options: LazyOptions;
-    private _image;
-    private _observer;
+    private _images;
     constructor(options?: LazyOptions);
     /**
      * merge config
@@ -102,4 +101,5 @@ export default class Lazy {
      * @memberof Lazy
      */
     private _lifecycle;
+    private _realObserver;
 }
