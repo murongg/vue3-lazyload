@@ -1,6 +1,6 @@
 {
   "name": "vue3-lazyload",
-  "version": "0.2.3-beta",
+  "version": "0.2.4-beta",
   "description": "A Vue3.x image lazyload plugin",
   "main": "dist/vue3-lazyload.js",
   "module": "dist/vue3-lazyload.esm.js",
