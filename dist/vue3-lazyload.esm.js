@@ -1,7 +1,7 @@
 /*!
- * Vue3-Lazyload.js v0.2.2-beta
+ * Vue3-Lazyload.js v0.2.3-beta
  * A Vue3.x image lazyload plugin
- * (c) 2020 MuRong <admin@imuboy.cn>
+ * (c) 2021 MuRong <admin@imuboy.cn>
  * Released under the MIT License.
  */
 var LifecycleEnum;
@@ -184,7 +184,7 @@ var Lazy = /** @class */ (function () {
     Lazy.prototype.mount = function (el, binding) {
         this._image = el;
         var _a = this._valueFormatter(binding.value), src = _a.src, loading = _a.loading, error = _a.error, lifecycle = _a.lifecycle;
-        this._lifecycle(LifecycleEnum.LOADING, lifecycle);
+        this._lifecycle(LifecycleEnum.LOADING, lifecycle, el);
         this._image.setAttribute('src', loading || DEFAULT_LOADING);
         if (!hasIntersectionObserver) {
             this.loadImages(el, src, error, lifecycle);
@@ -235,18 +235,19 @@ var Lazy = /** @class */ (function () {
     Lazy.prototype._setImageSrc = function (el, src, error, lifecycle) {
         var _this = this;
         if ('img' === el.tagName.toLowerCase()) {
-            if (src)
-                el.setAttribute('src', src);
+            if (src) {
+                var preSrc = el.getAttribute('src');
+                if (preSrc !== src) {
+                    el.setAttribute('src', src);
+                }
+            }
             this._listenImageStatus(el, function () {
-                _this._log(function () {
-                    console.log('Image loaded successfully!');
-                });
-                _this._lifecycle(LifecycleEnum.LOADED, lifecycle);
+                _this._lifecycle(LifecycleEnum.LOADED, lifecycle, el);
             }, function () {
                 // Fix onload trigger twice, clear onload event
                 // Reload on update
                 el.onload = null;
-                _this._lifecycle(LifecycleEnum.ERROR, lifecycle);
+                _this._lifecycle(LifecycleEnum.ERROR, lifecycle, el);
                 _this._observer.disconnect();
                 if (error)
                     el.setAttribute('src', error);
@@ -337,24 +338,24 @@ var Lazy = /** @class */ (function () {
      * @param {Lifecycle} [lifecycle]
      * @memberof Lazy
      */
-    Lazy.prototype._lifecycle = function (life, lifecycle) {
+    Lazy.prototype._lifecycle = function (life, lifecycle, el) {
         switch (life) {
             case LifecycleEnum.LOADING:
                 this._image.setAttribute('lazy', LifecycleEnum.LOADING);
                 if (lifecycle === null || lifecycle === void 0 ? void 0 : lifecycle.loading) {
-                    lifecycle.loading();
+                    lifecycle.loading(el);
                 }
                 break;
             case LifecycleEnum.LOADED:
                 this._image.setAttribute('lazy', LifecycleEnum.LOADED);
                 if (lifecycle === null || lifecycle === void 0 ? void 0 : lifecycle.loaded) {
-                    lifecycle.loaded();
+                    lifecycle.loaded(el);
                 }
                 break;
             case LifecycleEnum.ERROR:
                 this._image.setAttribute('lazy', LifecycleEnum.ERROR);
                 if (lifecycle === null || lifecycle === void 0 ? void 0 : lifecycle.error) {
-                    lifecycle.error();
+                    lifecycle.error(el);
                 }
                 break;
         }
@@ -381,4 +382,4 @@ var index = {
     }
 };
 
-export default index;
+export { index as default };

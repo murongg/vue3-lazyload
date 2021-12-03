@@ -17,5 +17,5 @@ export declare enum LifecycleEnum {
     ERROR = "error"
 }
 export declare type Lifecycle = {
-    [x in LifecycleEnum]?: () => void;
+    [x in LifecycleEnum]?: (el?: HTMLElement) => void;
 };
