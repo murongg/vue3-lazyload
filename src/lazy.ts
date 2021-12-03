@@ -52,7 +52,7 @@ export default class Lazy {
   public mount(el: HTMLElement, binding: DirectiveBinding<string | ValueFormatterObject>): void {
     this._image = el
     const { src, loading, error, lifecycle } = this._valueFormatter(binding.value)
-    this._lifecycle(LifecycleEnum.LOADING, lifecycle)
+    this._lifecycle(LifecycleEnum.LOADING, lifecycle, el)
     this._image.setAttribute('src', loading || DEFAULT_LOADING)
     if (!hasIntersectionObserver) {
       this.loadImages(el, src, error, lifecycle)
@@ -113,12 +113,12 @@ export default class Lazy {
         }
       }
       this._listenImageStatus(el as HTMLImageElement, () => {
-        this._lifecycle(LifecycleEnum.LOADED, lifecycle)
+        this._lifecycle(LifecycleEnum.LOADED, lifecycle, el)
       }, () => {
         // Fix onload trigger twice, clear onload event
         // Reload on update
         el.onload = null
-        this._lifecycle(LifecycleEnum.ERROR, lifecycle)
+        this._lifecycle(LifecycleEnum.ERROR, lifecycle, el)
         this._observer.disconnect()
         if (error) el.setAttribute('src', error)
         this._log(() => { throw new Error('Image failed to load!') })
@@ -211,24 +211,24 @@ export default class Lazy {
    * @param {Lifecycle} [lifecycle]
    * @memberof Lazy
    */
-  private _lifecycle(life: LifecycleEnum, lifecycle?: Lifecycle): void {            
+  private _lifecycle(life: LifecycleEnum, lifecycle?: Lifecycle, el?: HTMLElement): void {            
     switch (life) {
     case LifecycleEnum.LOADING:
       this._image.setAttribute('lazy', LifecycleEnum.LOADING)
       if (lifecycle?.loading) {
-        lifecycle.loading()
+        lifecycle.loading(el)
       }
       break
     case LifecycleEnum.LOADED:
       this._image.setAttribute('lazy', LifecycleEnum.LOADED)
       if (lifecycle?.loaded) {
-        lifecycle.loaded()
+        lifecycle.loaded(el)
       }
       break
     case LifecycleEnum.ERROR:
       this._image.setAttribute('lazy', LifecycleEnum.ERROR)      
       if (lifecycle?.error) {
-        lifecycle.error()
+        lifecycle.error(el)
       }
       break
     default:
