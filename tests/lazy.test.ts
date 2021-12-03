@@ -12,7 +12,8 @@ describe('Vue3-lazyload Test', function () {
     expect(result).toEqual({
       src: 'test',
       loading: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
-      error: ''
+      error: '',
+      lifecycle: {}
     })
   })
 
@@ -20,14 +21,15 @@ describe('Vue3-lazyload Test', function () {
     const options: ValueFormatterObject = {
       src: 'test src',
       loading: 'test loading',
-      error: 'test error'
+      error: 'test error',
+      lifecycle: {}
     }
     const result = lazy._valueFormatter(options)
     expect(result).toEqual(options)
   })
 
   it('test _log', function () {
-    lazy.config({silent: false})
+    lazy.config({ silent: false })
     let ThrowError
     lazy._log(() => {
       ThrowError = () => {

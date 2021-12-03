@@ -1,10 +1,22 @@
 <template>
   <div class="margin" />
   <!-- <img v-lazy="'/example/assets/logo.png'" alt="Vue logo" width="100"> -->
-  <img v-lazy="{src: errorlazy.src, lifecycle: errorlazy.lifecycle}" alt="Vue logo" class="image" width="100"> 
-  <button @click="change">
-    change
-  </button>
+  <h1>Primary</h1>
+  <img
+    v-lazy="{ src: errorlazy.src, lifecycle: errorlazy.lifecycle }"
+    alt="Vue logo"
+    class="image"
+    width="100"
+  />
+  <button @click="change">change</button>
+  <h1>v-for</h1>
+  <img
+    v-for="item in defaultImages"
+    v-lazy="{ src: item }"
+    alt="Vue logo"
+    class="image"
+    width="100"
+  />
 </template>
 
 <script>
@@ -27,11 +39,18 @@ export default {
       }
     })
     const change = () => {
-      errorlazy.src = 'http://t8.baidu.com/it/u=3571592872,3353494284&fm=79&app=86&size=h300&n=0&g=4n&f=jpeg?sec=1603764281&t=bedd2d52d62e141cbb08c462183601c7'
+      errorlazy.src = 'http://img.mm4000.com/file/8/91/3b3c5819be_1044.jpg'
     }
     return {
       errorlazy,
-      change
+      change,
+      defaultImages: [
+        'http://img.mm4000.com/file/8/91/3b3c5819be_1044.jpg',
+        'http://img.mm4000.com/file/8/91/ec3ee1aeed_1044.jpg',
+        'http://img.mm4000.com/file/8/91/b177ba87cf_1044.jpg',
+        'http://img.mm4000.com/file/8/91/8a3bb1e8ba_1044.jpg',
+        'http://img.mm4000.com/file/8/91/77f37a191f_1044.jpg'
+      ]
     }
   }
 }
@@ -41,13 +60,16 @@ export default {
 .margin {
   margin-top: 1000px;
 }
-.image[lazy=loading] {
+.image {
+  display: block;
+}
+.image[lazy="loading"] {
   background: goldenrod;
 }
-.image[lazy=error] {
+.image[lazy="error"] {
   background: red;
 }
-.image[lazy=loaded] {
+.image[lazy="loaded"] {
   background: green;
 }
 </style>
