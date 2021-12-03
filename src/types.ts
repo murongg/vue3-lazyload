@@ -20,5 +20,5 @@ export enum LifecycleEnum {
 }
 
 export type Lifecycle = {
-  [x in LifecycleEnum]?: () => void;
+  [x in LifecycleEnum]?: (el?:HTMLElement) => void;
 };
