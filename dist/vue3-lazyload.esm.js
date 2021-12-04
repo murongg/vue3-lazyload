@@ -215,6 +215,7 @@ var Lazy = /** @class */ (function () {
     Lazy.prototype.unmount = function (el) {
         var _a;
         (_a = this._realObserver(el)) === null || _a === void 0 ? void 0 : _a.unobserve(el);
+        this._images.delete(el);
     };
     /**
      * force loading
