@@ -81,6 +81,7 @@ export default class Lazy {
    */
   public unmount(el: HTMLElement): void {
     this._realObserver(el)?.unobserve(el)
+    this._images.delete(el)
   }
 
   /**
