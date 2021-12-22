@@ -120,7 +120,7 @@ export default class Lazy {
         this._lifecycle(LifecycleEnum.ERROR, lifecycle, el)
         this._realObserver(el)?.disconnect()
         if (error) el.setAttribute('src', error)
-        this._log(() => { throw new Error('Image failed to load!') })
+        this._log(() => { throw new Error(`Image failed to load!And failed src was: ${src} `) })
       })
     } else {
       el.style.backgroundImage = 'url(\'' + src + '\')'
