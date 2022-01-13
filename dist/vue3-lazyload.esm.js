@@ -1,7 +1,7 @@
 /*!
  * Vue3-Lazyload.js v0.2.5-beta
  * A Vue3.x image lazyload plugin
- * (c) 2021 MuRong <admin@imuboy.cn>
+ * (c) 2022 MuRong <admin@imuboy.cn>
  * Released under the MIT License.
  */
 var LifecycleEnum;
@@ -255,7 +255,7 @@ var Lazy = /** @class */ (function () {
                 (_a = _this._realObserver(el)) === null || _a === void 0 ? void 0 : _a.disconnect();
                 if (error)
                     el.setAttribute('src', error);
-                _this._log(function () { throw new Error('Image failed to load!'); });
+                _this._log(function () { throw new Error("Image failed to load!And failed src was: ".concat(src, " ")); });
             });
         }
         else {
