@@ -1,6 +1,6 @@
+import type { App } from 'vue'
 import Lazy from './lazy'
-import { App } from 'vue'
-import { LazyOptions } from './types'
+import type { LazyOptions } from './types'
 
 export default {
   /**
@@ -9,7 +9,7 @@ export default {
    * @param {App} Vue
    * @param {LazyOptions} options
    */
-  install (Vue: App, options: LazyOptions): void {
+  install(Vue: App, options: LazyOptions): void {
     const lazy = new Lazy(options)
 
     Vue.config.globalProperties.$Lazyload = lazy
@@ -17,7 +17,7 @@ export default {
     Vue.directive('lazy', {
       mounted: lazy.mount.bind(lazy),
       updated: lazy.update.bind(lazy),
-      unmounted: lazy.unmount.bind(lazy)
+      unmounted: lazy.unmount.bind(lazy),
     })
-  }
+  },
 }

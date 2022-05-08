@@ -48,8 +48,8 @@ main.js:
 
 ```js
 import { createApp } from 'vue'
-import App from './App.vue'
 import VueLazyLoad from 'vue3-lazyload'
+import App from './App.vue'
 
 const app = createApp(App)
 app.use(VueLazyLoad, {
@@ -68,7 +68,7 @@ App.vue:
 
 ```vue
 <template>
-  <img v-lazy="{ src: 'your image url', loading: 'your loading image url', error: 'your error image url' }" />
+  <img v-lazy="{ src: 'your image url', loading: 'your loading image url', error: 'your error image url' }">
 </template>
 ```
 
@@ -78,14 +78,14 @@ In main.js
 
 ```js
 import { createApp } from 'vue'
-import App from './App.vue'
 import VueLazyLoad from 'vue3-lazyload'
+import App from './App.vue'
 
 const app = createApp(App)
 app.use(VueLazyLoad, {
   loading: '',
   error: '',
-  lifecycle:{
+  lifecycle: {
     loading: (el) => {
       console.log('loading', el)
     },
@@ -106,10 +106,6 @@ In xxx.vue
 > Have to be aware of is v-lazy don't use v-lazy="lazyOptions", in this case, vue cannot monitor data changes.
 
 ```vue
-<template>
-  <img v-lazy="{src: lazyOptions.src, lifecycle: lazyOptions.lifecycle}" width="100"> 
-</template>
-
 <script>
 import { reactive } from 'vue'
 export default {
@@ -135,6 +131,10 @@ export default {
   }
 }
 </script>
+
+<template>
+  <img v-lazy="{src: lazyOptions.src, lifecycle: lazyOptions.lifecycle}" width="100">
+</template>
 
 ```
 

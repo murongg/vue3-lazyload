@@ -5,7 +5,7 @@ name: build
 
 on:
   push:
-    branches: [ develop ]
+    branches: [develop]
 
 jobs:
   build:
@@ -43,13 +43,13 @@ jobs:
 
       - name: Build library
         run: yarn build
-        
+
       - name: Publish
         uses: crazy-max/ghaction-github-pages@v2
         with:
           target_branch: develop
           build_dir: /
-          commit_message: "Github Actions For Build"
+          commit_message: Github Actions For Build
         env:
           # @see https://docs.github.com/cn/actions/reference/authentication-in-a-workflow#about-the-github_token-secret
           GITHUB_TOKEN: ${{ secrets.ACTIONS_DEPLOY_KEY }}

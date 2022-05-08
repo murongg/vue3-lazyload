@@ -42,18 +42,18 @@ export function isValidKey(key: any): boolean {
  * @returns {boolean}
  */
 export function checkIntersectionObserver(): boolean {
-  if (inBrowser &&
-    'IntersectionObserver' in window &&
-    'IntersectionObserverEntry' in window &&
-    'intersectionRatio' in window.IntersectionObserverEntry.prototype) {
+  if (inBrowser
+    && 'IntersectionObserver' in window
+    && 'IntersectionObserverEntry' in window
+    && 'intersectionRatio' in window.IntersectionObserverEntry.prototype) {
     // Minimal polyfill for Edge 15's lack of `isIntersecting`
     // See: https://github.com/w3c/IntersectionObserver/issues/211
     if (!('isIntersecting' in window.IntersectionObserverEntry.prototype)) {
       Object.defineProperty(window.IntersectionObserverEntry.prototype,
         'isIntersecting', {
-          get () {
+          get() {
             return this.intersectionRatio > 0
-          }
+          },
         })
     }
     return true
@@ -62,10 +62,10 @@ export function checkIntersectionObserver(): boolean {
 }
 
 /**
- * Assign the enumerable es6 Symbol properties from one 
- * or more objects to the first object passed on the arguments. 
- * Can be used as a supplement to other extend, assign or 
- * merge methods as a polyfill for the Symbols part of 
+ * Assign the enumerable es6 Symbol properties from one
+ * or more objects to the first object passed on the arguments.
+ * Can be used as a supplement to other extend, assign or
+ * merge methods as a polyfill for the Symbols part of
  * the es6 Object.assign method.
  * https://github.com/jonschlinkert/assign-symbols
  *
@@ -74,28 +74,25 @@ export function checkIntersectionObserver(): boolean {
  * @returns
  */
 function assignSymbols(target: any, ...args: any[]) {
-  if (!isObject(target)) {
+  if (!isObject(target))
     throw new TypeError('expected the first argument to be an object')
-  }
 
-  if (args.length === 0 || typeof Symbol !== 'function' || typeof getSymbols !== 'function') {
+  if (args.length === 0 || typeof Symbol !== 'function' || typeof getSymbols !== 'function')
     return target
-  }
 
   for (const arg of args) {
     const names = getSymbols(arg)
 
     for (const key of names) {
-      if (isEnumerable.call(arg, key)) {
+      if (isEnumerable.call(arg, key))
         target[key] = arg[key]
-      }
     }
   }
   return target
 }
 
 /**
- * Deeply assign the values of all enumerable-own-properties and symbols 
+ * Deeply assign the values of all enumerable-own-properties and symbols
  * from one or more source objects to a target object. Returns the target object.
  * https://github.com/jonschlinkert/assign-deep
  *
@@ -105,17 +102,18 @@ function assignSymbols(target: any, ...args: any[]) {
  */
 export function assign(target: any, ...args: any[]): void {
   let i = 0
-  if (isPrimitive(target)) target = args[i++]
-  if (!target) target = {}
+  if (isPrimitive(target))
+    target = args[i++]
+  if (!target)
+    target = {}
   for (; i < args.length; i++) {
     if (isObject(args[i])) {
       for (const key of Object.keys(args[i])) {
         if (isValidKey(key)) {
-          if (isObject(target[key]) && isObject(args[i][key])) {
+          if (isObject(target[key]) && isObject(args[i][key]))
             assign(target[key], args[i][key])
-          } else {
+          else
             target[key] = args[i][key]
-          }
         }
       }
       assignSymbols(target, args[i])

@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-empty-function */
-import { LazyOptions, Lifecycle, LifecycleEnum, ValueFormatterObject } from './types'
-import { hasIntersectionObserver, assign, isObject } from './util'
-import { DirectiveBinding } from 'vue'
+import type { DirectiveBinding } from 'vue'
+import type { LazyOptions, Lifecycle, ValueFormatterObject } from './types'
+import { LifecycleEnum } from './types'
+import { assign, hasIntersectionObserver, isObject } from './util'
 
 const DEFAULT_OBSERVER_OPTIONS = {
   rootMargin: '0px',
-  threshold: 0
+  threshold: 0,
 }
 
 const DEFAULT_LOADING = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
@@ -23,8 +24,9 @@ export default class Lazy {
     error: DEFAULT_ERROR,
     observerOptions: DEFAULT_OBSERVER_OPTIONS,
     log: true,
-    lifecycle: {}
-  };
+    lifecycle: {},
+  }
+
   private _images: WeakMap<HTMLElement, IntersectionObserver> = new WeakMap()
 
   constructor(options?: LazyOptions) {
@@ -104,12 +106,11 @@ export default class Lazy {
    * @memberof Lazy
    */
   private _setImageSrc(el: HTMLElement, src: string, error?: string, lifecycle?: Lifecycle): void {
-    if ('img' === el.tagName.toLowerCase()) {
+    if (el.tagName.toLowerCase() === 'img') {
       if (src) {
         const preSrc = el.getAttribute('src')
-        if (preSrc !== src) {
+        if (preSrc !== src)
           el.setAttribute('src', src)
-        }
       }
       this._listenImageStatus(el as HTMLImageElement, () => {
         this._lifecycle(LifecycleEnum.LOADED, lifecycle, el)
@@ -119,11 +120,13 @@ export default class Lazy {
         el.onload = null
         this._lifecycle(LifecycleEnum.ERROR, lifecycle, el)
         this._realObserver(el)?.disconnect()
-        if (error) el.setAttribute('src', error)
+        if (error)
+          el.setAttribute('src', error)
         this._log(() => { throw new Error(`Image failed to load!And failed src was: ${src} `) })
       })
-    } else {
-      el.style.backgroundImage = 'url(\'' + src + '\')'
+    }
+    else {
+      el.style.backgroundImage = `url('${src}')`
     }
   }
 
@@ -186,7 +189,7 @@ export default class Lazy {
       src,
       loading,
       error,
-      lifecycle
+      lifecycle,
     }
   }
 
@@ -197,9 +200,8 @@ export default class Lazy {
    * @memberof Lazy
    */
   public _log(callback: () => void): void {
-    if (this.options.log) {
+    if (this.options.log)
       callback()
-    }
   }
 
   /**
@@ -212,26 +214,26 @@ export default class Lazy {
    */
   private _lifecycle(life: LifecycleEnum, lifecycle?: Lifecycle, el?: HTMLElement): void {
     switch (life) {
-    case LifecycleEnum.LOADING:
-      el?.setAttribute('lazy', LifecycleEnum.LOADING)
-      if (lifecycle?.loading) {
-        lifecycle.loading(el)
-      }
-      break
-    case LifecycleEnum.LOADED:
-      el?.setAttribute('lazy', LifecycleEnum.LOADED)
-      if (lifecycle?.loaded) {
-        lifecycle.loaded(el)
-      }
-      break
-    case LifecycleEnum.ERROR:
-      el?.setAttribute('lazy', LifecycleEnum.ERROR)
-      if (lifecycle?.error) {
-        lifecycle.error(el)
-      }
-      break
-    default:
-      break
+      case LifecycleEnum.LOADING:
+        el?.setAttribute('lazy', LifecycleEnum.LOADING)
+        if (lifecycle?.loading)
+          lifecycle.loading(el)
+
+        break
+      case LifecycleEnum.LOADED:
+        el?.setAttribute('lazy', LifecycleEnum.LOADED)
+        if (lifecycle?.loaded)
+          lifecycle.loaded(el)
+
+        break
+      case LifecycleEnum.ERROR:
+        el?.setAttribute('lazy', LifecycleEnum.ERROR)
+        if (lifecycle?.error)
+          lifecycle.error(el)
+
+        break
+      default:
+        break
     }
   }
 
