@@ -1,5 +1,5 @@
-import { LazyOptions, Lifecycle, ValueFormatterObject } from './types';
-import { DirectiveBinding } from 'vue';
+import type { DirectiveBinding } from 'vue'
+import type { LazyOptions, Lifecycle, ValueFormatterObject } from './types'
 /**
  * Lazyload
  *
@@ -7,47 +7,47 @@ import { DirectiveBinding } from 'vue';
  * @class Lazy
  */
 export default class Lazy {
-    options: LazyOptions;
-    private _images;
-    constructor(options?: LazyOptions);
-    /**
+  options: LazyOptions
+  private _images
+  constructor(options?: LazyOptions)
+  /**
      * merge config
      *
      * @param {*} [options={}]
      * @memberof Lazy
      */
-    config(options?: {}): void;
-    /**
+  config(options?: {}): void
+  /**
      * mount
      *
      * @param {HTMLElement} el
      * @param {DirectiveBinding<string>} binding
      * @memberof Lazy
      */
-    mount(el: HTMLElement, binding: string | DirectiveBinding<string | ValueFormatterObject>): void;
-    /**
+  mount(el: HTMLElement, binding: string | DirectiveBinding<string | ValueFormatterObject>): void
+  /**
      * update
      *
      * @param {HTMLElement} el
      * @memberof Lazy
      */
-    update(el: HTMLElement, binding: string | DirectiveBinding<string | ValueFormatterObject>): void;
-    /**
+  update(el: HTMLElement, binding: string | DirectiveBinding<string | ValueFormatterObject>): void
+  /**
      * unmount
      *
      * @param {HTMLElement} el
      * @memberof Lazy
      */
-    unmount(el: HTMLElement): void;
-    /**
+  unmount(el: HTMLElement): void
+  /**
      * force loading
      *
      * @param {HTMLElement} el
      * @param {string} src
      * @memberof Lazy
      */
-    loadImages(el: HTMLElement, src: string, error?: string, lifecycle?: Lifecycle): void;
-    /**
+  loadImages(el: HTMLElement, src: string, error?: string, lifecycle?: Lifecycle): void
+  /**
      * set img tag src
      *
      * @private
@@ -55,8 +55,8 @@ export default class Lazy {
      * @param {string} src
      * @memberof Lazy
      */
-    private _setImageSrc;
-    /**
+  private _setImageSrc
+  /**
      * init IntersectionObserver
      *
      * @private
@@ -64,8 +64,8 @@ export default class Lazy {
      * @param {string} src
      * @memberof Lazy
      */
-    private _initIntersectionObserver;
-    /**
+  private _initIntersectionObserver
+  /**
      * only listen to image status
      *
      * @private
@@ -75,8 +75,8 @@ export default class Lazy {
      * @param {() => void} error
      * @memberof Lazy
      */
-    private _listenImageStatus;
-    /**
+  private _listenImageStatus
+  /**
      * to do it differently for object and string
      *
      * @public
@@ -84,15 +84,15 @@ export default class Lazy {
      * @returns {*}
      * @memberof Lazy
      */
-    _valueFormatter(value: ValueFormatterObject | string): ValueFormatterObject;
-    /**
+  _valueFormatter(value: ValueFormatterObject | string): ValueFormatterObject
+  /**
      * log
      *
      * @param {() => void} callback
      * @memberof Lazy
      */
-    _log(callback: () => void): void;
-    /**
+  _log(callback: () => void): void
+  /**
      * lifecycle easy
      *
      * @private
@@ -100,6 +100,6 @@ export default class Lazy {
      * @param {Lifecycle} [lifecycle]
      * @memberof Lazy
      */
-    private _lifecycle;
-    private _realObserver;
+  private _lifecycle
+  private _realObserver
 }

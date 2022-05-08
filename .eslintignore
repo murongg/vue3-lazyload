@@ -8,3 +8,4 @@ lib/
 _site/
 dist/
 shims-vue.d.ts
+example/*

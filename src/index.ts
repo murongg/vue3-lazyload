@@ -1,11 +1,6 @@
+import type { App } from 'vue-demi'
 import Lazy from './lazy'
-import { App } from 'vue'
-import { LazyOptions } from './types'
-import { useLazyload } from './hooks'
-
-export {
-  useLazyload
-}
+import type { LazyOptions } from './types'
 
 export default {
   /**
@@ -22,7 +17,7 @@ export default {
     Vue.directive('lazy', {
       mounted: lazy.mount.bind(lazy),
       updated: lazy.update.bind(lazy),
-      unmounted: lazy.unmount.bind(lazy)
+      unmounted: lazy.unmount.bind(lazy),
     })
-  }
+  },
 }

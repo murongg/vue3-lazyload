@@ -1,6 +1,6 @@
 import { createApp } from 'vue'
-import App from './App.vue'
 import VueLazyLoad from '../src/index'
+import App from './App.vue'
 
 const app = createApp(App)
 app.use(VueLazyLoad, {
@@ -14,7 +14,7 @@ app.use(VueLazyLoad, {
     },
     loaded: () => {
       console.log('loaded')
-    }
-  }
+    },
+  },
 })
 app.mount('#app')

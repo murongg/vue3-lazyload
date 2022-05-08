@@ -1,12 +1,17 @@
 {
   "compilerOptions": {
-    "target": "es5",
-    "module": "es2015",
+    "target": "es2017",
+    "module": "esnext",
+    "lib": ["esnext", "DOM", "DOM.Iterable"],
     "moduleResolution": "node",
+    "declaration": true,
+    "declarationDir": "./types",
     "esModuleInterop": true,
-    "noImplicitThis": false,
     "strict": true,
-    "lib": ["esnext", "dom"]
-  },
-  "include": ["src/*"]
+    "strictNullChecks": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "jsx": "preserve"
+  }
 }

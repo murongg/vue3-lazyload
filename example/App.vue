@@ -1,4 +1,5 @@
 <template>
+  <h1 align="center">please drag to bottom</h1>
   <div class="navbar">
     <div class="navbar_button" :class="showType === 'Directive' ? 'active' : ''" @click="switchType('Directive')">
       Directive
@@ -26,7 +27,7 @@ export default {
       showType,
       switchType
     }
-  }
+  },
 }
 </script>
 
