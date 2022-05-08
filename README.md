@@ -23,6 +23,7 @@ A vue3.x image lazyload plugin.
 - 🦾 **Type Strong:** Written in Typescript
 - 💪 **Small Size:** Only 4kb
 - 🌎 **Browser support:** Use it through CDN
+- 😊 **Support Hook:** useLazyload
 
 ## 📎 Installation
 ```sh
@@ -33,9 +34,9 @@ $ yarn add vue3-lazyload
 
 ## 🌎 CDN
 
-CDN: https://unpkg.com/vue3-lazyload/dist/vue3-lazyload.min.js
+CDN:  https://unpkg.com/vue3-lazyload
 ```html
-<script src="https://unpkg.com/vue3-lazyload/dist/vue3-lazyload.min.js"></script>
+<script src="https://unpkg.com/vue3-lazyload"></script>
 <script>
   Vue.createApp(App).use(VueLazyLoad)
   ...
@@ -136,6 +137,40 @@ export default {
   <img v-lazy="{src: lazyOptions.src, lifecycle: lazyOptions.lifecycle}" width="100">
 </template>
 
+```
+
+### Use Hook
+```vue
+<template>
+  <img class="image" ref="lazyRef" width="100" />
+</template>
+
+<script lang="ts">
+import { ref } from 'vue'
+import { useLazyload } from 'vue3-lazyload/dist/hooks'
+export default {
+  name: 'App',
+  setup() {
+    const src = ref('/example/assets/logo.png')
+    const lazyRef = useLazyload(src, {
+      lifecycle: {
+        loading: () => {
+          console.log('loading')
+        },
+        error: () => {
+          console.log('error')
+        },
+        loaded: () => {
+          console.log('loaded')
+        }
+      }
+    })
+    return {
+      lazyRef
+    }
+  }
+}
+</script>
 ```
 
 #### Use css state
