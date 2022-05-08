@@ -10,3 +10,4 @@ declare const _default: {
     install(Vue: App, options: LazyOptions): void;
 };
 export default _default;
+export * from './hooks';

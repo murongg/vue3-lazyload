@@ -2,15 +2,14 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import { LazyOptions, Lifecycle, LifecycleEnum, ValueFormatterObject } from './types'
 import { hasIntersectionObserver, assign, isObject } from './util'
-import { DirectiveBinding } from 'vue'
+import { DirectiveBinding } from 'vue-demi'
+import { DEFAULT_LOADING, DEFAULT_ERROR } from './constant'
 
 const DEFAULT_OBSERVER_OPTIONS = {
   rootMargin: '0px',
   threshold: 0
 }
 
-const DEFAULT_LOADING = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
-const DEFAULT_ERROR = ''
 /**
  * Lazyload
  *
@@ -48,8 +47,8 @@ export default class Lazy {
    * @param {DirectiveBinding<string>} binding
    * @memberof Lazy
    */
-  public mount(el: HTMLElement, binding: DirectiveBinding<string | ValueFormatterObject>): void {
-    const { src, loading, error, lifecycle } = this._valueFormatter(binding.value)
+  public mount(el: HTMLElement, binding: string | DirectiveBinding<string | ValueFormatterObject>): void {
+    const { src, loading, error, lifecycle } = this._valueFormatter(typeof binding === 'string' ? binding : binding.value)
     this._lifecycle(LifecycleEnum.LOADING, lifecycle, el)
     el.setAttribute('src', loading || DEFAULT_LOADING)
     if (!hasIntersectionObserver) {
@@ -67,9 +66,9 @@ export default class Lazy {
    * @param {HTMLElement} el
    * @memberof Lazy
    */
-  public update(el: HTMLElement, binding: DirectiveBinding<string | ValueFormatterObject>): void {
+  public update(el: HTMLElement, binding: string | DirectiveBinding<string | ValueFormatterObject>): void {
     this._realObserver(el)?.unobserve(el)
-    const { src, error, lifecycle } = this._valueFormatter(binding.value)
+    const { src, error, lifecycle } = this._valueFormatter(typeof binding === 'string' ? binding : binding.value)
     this._initIntersectionObserver(el, src, error, lifecycle)
   }
 

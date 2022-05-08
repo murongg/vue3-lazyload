@@ -24,14 +24,14 @@ export default class Lazy {
      * @param {DirectiveBinding<string>} binding
      * @memberof Lazy
      */
-    mount(el: HTMLElement, binding: DirectiveBinding<string | ValueFormatterObject>): void;
+    mount(el: HTMLElement, binding: string | DirectiveBinding<string | ValueFormatterObject>): void;
     /**
      * update
      *
      * @param {HTMLElement} el
      * @memberof Lazy
      */
-    update(el: HTMLElement, binding: DirectiveBinding<string | ValueFormatterObject>): void;
+    update(el: HTMLElement, binding: string | DirectiveBinding<string | ValueFormatterObject>): void;
     /**
      * unmount
      *

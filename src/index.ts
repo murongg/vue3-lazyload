@@ -1,6 +1,11 @@
 import Lazy from './lazy'
 import { App } from 'vue'
 import { LazyOptions } from './types'
+import { useLazyload } from './hooks'
+
+export {
+  useLazyload
+}
 
 export default {
   /**
@@ -9,7 +14,7 @@ export default {
    * @param {App} Vue
    * @param {LazyOptions} options
    */
-  install (Vue: App, options: LazyOptions): void {
+  install(Vue: App, options: LazyOptions): void {
     const lazy = new Lazy(options)
 
     Vue.config.globalProperties.$Lazyload = lazy

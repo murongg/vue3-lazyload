@@ -1,75 +1,50 @@
 <template>
-  <div class="margin" />
-  <!-- <img v-lazy="'/example/assets/logo.png'" alt="Vue logo" width="100"> -->
-  <h1>Primary</h1>
-  <img
-    v-lazy="{ src: errorlazy.src, lifecycle: errorlazy.lifecycle }"
-    alt="Vue logo"
-    class="image"
-    width="100"
-  />
-  <button @click="change">change</button>
-  <h1>v-for</h1>
-  <img
-    v-for="item in defaultImages"
-    v-lazy="{ src: item }"
-    alt="Vue logo"
-    class="image"
-    width="100"
-  />
+  <div class="navbar">
+    <div class="navbar_button" :class="showType === 'Directive' ? 'active' : ''" @click="switchType('Directive')">
+      Directive
+    </div>
+    <div class="space">|</div>
+    <div class="navbar_button" :class="showType === 'Hook' ? 'active' : ''" @click="switchType('Hook')">Hook</div>
+  </div>
+  <Directive v-if="showType === 'Directive'"></Directive>
+  <Hook v-else></Hook>
 </template>
 
 <script>
-import { reactive } from 'vue'
+import { ref } from 'vue'
+import Directive from './components/directive.vue'
+import Hook from './components/hook.vue'
 export default {
   name: 'App',
+  components: { Directive, Hook },
   setup() {
-    const errorlazy = reactive({
-      src: '/example/assets/log1o.png',
-      lifecycle: {
-        loading: () => {
-          console.log('image loading')
-        },
-        error: () => {
-          console.log('image error')
-        },
-        loaded: () => {
-          console.log('image loaded')
-        }
-      }
-    })
-    const change = () => {
-      errorlazy.src = 'http://img.mm4000.com/file/8/91/3b3c5819be_1044.jpg'
+    const showType = ref('Directive')
+    const switchType = (type) => {
+      showType.value = type
     }
     return {
-      errorlazy,
-      change,
-      defaultImages: [
-        'http://img.mm4000.com/file/8/91/3b3c5819be_1044.jpg',
-        'http://img.mm4000.com/file/8/91/ec3ee1aeed_1044.jpg',
-        'http://img.mm4000.com/file/8/91/b177ba87cf_1044.jpg',
-        'http://img.mm4000.com/file/8/91/8a3bb1e8ba_1044.jpg',
-        'http://img.mm4000.com/file/8/91/77f37a191f_1044.jpg'
-      ]
+      showType,
+      switchType
     }
   }
 }
 </script>
 
 <style>
-.margin {
-  margin-top: 1000px;
+.navbar {
+  display: flex;
+  justify-content: center;
 }
-.image {
-  display: block;
+
+.space {
+  margin: 0 10px;
 }
-.image[lazy="loading"] {
-  background: goldenrod;
+
+.navbar_button {
+  cursor: pointer;
 }
-.image[lazy="error"] {
-  background: red;
-}
-.image[lazy="loaded"] {
-  background: green;
+
+.navbar_button.active {
+  color: cadetblue;
 }
 </style>
