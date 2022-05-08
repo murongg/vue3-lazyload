@@ -4,7 +4,6 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import LazyLoad from '../src'
 import Lazy from '../src/lazy'
 
-import 'jest-canvas-mock'
 const AppContanier = {
   template: `
     <div>

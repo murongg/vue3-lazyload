@@ -141,10 +141,6 @@ export default {
 
 ### Use Hook
 ```vue
-<template>
-  <img class="image" ref="lazyRef" width="100" />
-</template>
-
 <script lang="ts">
 import { ref } from 'vue'
 import { useLazyload } from 'vue3-lazyload/dist/hooks'
@@ -171,6 +167,10 @@ export default {
   }
 }
 </script>
+
+<template>
+  <img ref="lazyRef" class="image" width="100">
+</template>
 ```
 
 #### Use css state
