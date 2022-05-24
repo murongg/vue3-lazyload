@@ -143,7 +143,7 @@ export default {
 ```vue
 <script lang="ts">
 import { ref } from 'vue'
-import { useLazyload } from 'vue3-lazyload/dist/hooks'
+import { useLazyload } from 'vue3-lazyload'
 export default {
   name: 'App',
   setup() {
