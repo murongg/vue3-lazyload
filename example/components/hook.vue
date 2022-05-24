@@ -5,7 +5,7 @@
 
 <script lang="ts">
 import { ref } from 'vue'
-import { useLazyload } from '../../src/hooks'
+import { useLazyload } from '../../src'
 export default {
   name: 'App',
   setup() {

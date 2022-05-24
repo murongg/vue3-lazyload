@@ -1,6 +1,7 @@
 import type { App } from 'vue-demi'
 import Lazy from './lazy'
 import type { LazyOptions } from './types'
+export * from './hooks'
 
 export default {
   /**
