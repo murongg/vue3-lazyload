@@ -21,7 +21,6 @@ A vue3.x image lazyload plugin.
 ## 🚀 Features
 - ⚡ **0 dependencies:** No worry about your bundle size
 - 🦾 **Type Strong:** Written in Typescript
-- 💪 **Small Size:** Only 4kb
 - 🌎 **Browser support:** Use it through CDN
 - 😊 **Support Hook:** useLazyload
 
