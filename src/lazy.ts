@@ -11,6 +11,8 @@ const DEFAULT_OBSERVER_OPTIONS = {
   threshold: 0,
 }
 
+const TIMEOUT_ID_DATA_ATTR = 'data-lazy-timeout-id'
+
 /**
  * Lazyload
  *
@@ -50,7 +52,7 @@ export default class Lazy {
    * @memberof Lazy
    */
   public mount(el: HTMLElement, binding: string | DirectiveBinding<string | ValueFormatterObject>): void {
-    const { src, loading, error, lifecycle } = this._valueFormatter(typeof binding === 'string' ? binding : binding.value)
+    const { src, loading, error, lifecycle, delay } = this._valueFormatter(typeof binding === 'string' ? binding : binding.value)
     this._lifecycle(LifecycleEnum.LOADING, lifecycle, el)
     el.setAttribute('src', loading || DEFAULT_LOADING)
     if (!hasIntersectionObserver) {
@@ -59,7 +61,7 @@ export default class Lazy {
         throw new Error('Not support IntersectionObserver!')
       })
     }
-    this._initIntersectionObserver(el, src, error, lifecycle)
+    this._initIntersectionObserver(el, src, error, lifecycle, delay)
   }
 
   /**
@@ -70,8 +72,8 @@ export default class Lazy {
    */
   public update(el: HTMLElement, binding: string | DirectiveBinding<string | ValueFormatterObject>): void {
     this._realObserver(el)?.unobserve(el)
-    const { src, error, lifecycle } = this._valueFormatter(typeof binding === 'string' ? binding : binding.value)
-    this._initIntersectionObserver(el, src, error, lifecycle)
+    const { src, error, lifecycle, delay } = this._valueFormatter(typeof binding === 'string' ? binding : binding.value)
+    this._initIntersectionObserver(el, src, error, lifecycle, delay)
   }
 
   /**
@@ -137,17 +139,43 @@ export default class Lazy {
    * @param {string} src
    * @memberof Lazy
    */
-  private _initIntersectionObserver(el: HTMLElement, src: string, error?: string, lifecycle?: Lifecycle): void {
+  private _initIntersectionObserver(el: HTMLElement, src: string, error?: string, lifecycle?: Lifecycle, delay?: number): void {
     const observerOptions = this.options.observerOptions
     this._images.set(el, new IntersectionObserver((entries) => {
       Array.prototype.forEach.call(entries, (entry) => {
-        if (entry.isIntersecting) {
-          this._realObserver(el)?.unobserve(entry.target)
-          this._setImageSrc(el, src, error, lifecycle)
-        }
+        if (delay && delay > 0)
+          this._delayedIntersectionCallback(el, entry, delay, src, error, lifecycle)
+        else
+          this._intersectionCallback(el, entry, src, error, lifecycle)
       })
     }, observerOptions))
     this._realObserver(el)?.observe(el)
+  }
+
+  private _intersectionCallback(el: HTMLElement, entry: IntersectionObserverEntry, src: string, error?: string, lifecycle?: Lifecycle): void {
+    if (entry.isIntersecting) {
+      this._realObserver(el)?.unobserve(entry.target)
+      this._setImageSrc(el, src, error, lifecycle)
+    }
+  }
+
+  private _delayedIntersectionCallback(el: HTMLElement, entry: IntersectionObserverEntry, delay: number, src: string, error?: string, lifecycle?: Lifecycle): void {
+    if (entry.isIntersecting) {
+      if (entry.target.hasAttribute(TIMEOUT_ID_DATA_ATTR))
+        return
+
+      const timeoutId = setTimeout(() => {
+        this._intersectionCallback(el, entry, src, error, lifecycle)
+        entry.target.removeAttribute(TIMEOUT_ID_DATA_ATTR)
+      }, delay)
+      entry.target.setAttribute(TIMEOUT_ID_DATA_ATTR, String(timeoutId))
+    }
+    else {
+      if (entry.target.hasAttribute(TIMEOUT_ID_DATA_ATTR)) {
+        clearTimeout(Number(entry.target.getAttribute(TIMEOUT_ID_DATA_ATTR)))
+        entry.target.removeAttribute(TIMEOUT_ID_DATA_ATTR)
+      }
+    }
   }
 
   /**
@@ -178,17 +206,20 @@ export default class Lazy {
     let loading = this.options.loading
     let error = this.options.error
     let lifecycle = this.options.lifecycle
+    let delay = this.options.delay
     if (isObject(value)) {
       src = (value as ValueFormatterObject).src
       loading = (value as ValueFormatterObject).loading || this.options.loading
       error = (value as ValueFormatterObject).error || this.options.error
       lifecycle = ((value as ValueFormatterObject).lifecycle || this.options.lifecycle)
+      delay = ((value as ValueFormatterObject).delay || this.options.delay)
     }
     return {
       src,
       loading,
       error,
       lifecycle,
+      delay,
     }
   }
 

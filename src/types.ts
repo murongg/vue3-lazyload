@@ -4,6 +4,7 @@ export interface LazyOptions {
   observerOptions?: IntersectionObserverInit
   log?: boolean
   lifecycle?: Lifecycle
+  delay?: number
 }
 
 export interface ValueFormatterObject {
@@ -11,6 +12,7 @@ export interface ValueFormatterObject {
   error?: string
   loading?: string
   lifecycle?: Lifecycle
+  delay?: number
 }
 
 export enum LifecycleEnum {
