@@ -200,6 +200,19 @@ You can take advantage of this feature, make different css controls for differen
 </style>
 ```
 
+### Delay loading of images
+
+To avoid loading images that are only shortly visible (e. g. fast scrolling through list of images), a delay in milliseconds can be configured.
+If a delay is set, an image is only loaded if it stays visible for the specified amount of time.
+
+Set delay in object parameter:
+
+```vue
+<template>
+  <img v-lazy="{ src: 'your image url', loading: 'your loading image url', error: 'your error image url', delay: 500 }">
+</template>
+```
+
 ## 📁 Options
 
 |  key   | description  | default | type |
@@ -209,6 +222,7 @@ You can take advantage of this feature, make different css controls for differen
 | observerOptions  | IntersectionObserver options | { rootMargin: '0px', threshold: 0.1 } | [IntersectionObserverInit]([链接地址](https://developer.mozilla.org/en-US/docs/Web/API/IntersectionObserver))|
 | log  | Do not print debug info	 | true  | boolean |
 | lifecycle  | Specify state execution function	 | -  | [Lifecycle](#Lifecycle) |
+| delay  | Time in milliseconds an image has to stay visible before loading starts | 0  | number |
 
 ## ⛱ Lifecycle Hooks
 
