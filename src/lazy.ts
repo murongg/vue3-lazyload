@@ -52,6 +52,8 @@ export default class Lazy {
    * @memberof Lazy
    */
   public mount(el: HTMLElement, binding: string | DirectiveBinding<string | ValueFormatterObject>): void {
+    if (!el)
+      return
     const { src, loading, error, lifecycle, delay } = this._valueFormatter(typeof binding === 'string' ? binding : binding.value)
     this._lifecycle(LifecycleEnum.LOADING, lifecycle, el)
     el.setAttribute('src', loading || DEFAULT_LOADING)
@@ -71,6 +73,8 @@ export default class Lazy {
    * @memberof Lazy
    */
   public update(el: HTMLElement, binding: string | DirectiveBinding<string | ValueFormatterObject>): void {
+    if (!el)
+      return
     this._realObserver(el)?.unobserve(el)
     const { src, error, lifecycle, delay } = this._valueFormatter(typeof binding === 'string' ? binding : binding.value)
     this._initIntersectionObserver(el, src, error, lifecycle, delay)
@@ -83,6 +87,8 @@ export default class Lazy {
    * @memberof Lazy
    */
   public unmount(el: HTMLElement): void {
+    if (!el)
+      return
     this._realObserver(el)?.unobserve(el)
     this._images.delete(el)
   }
