@@ -7,7 +7,8 @@ export default defineConfig({
   test: {
     environment: 'happy-dom',
   },
+  base: process.env.NODE_ENV === 'production' ? '/vue3-lazylaod/' : '/',
   build: {
-    outDir: 'example/dist'
-  }
+    outDir: 'example/dist',
+  },
 })
