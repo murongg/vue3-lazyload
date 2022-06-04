@@ -45,16 +45,6 @@
     "typecheck": "tsc --noEmit",
     "prepare": "husky install"
   },
-  "typings": "types/index.d.ts",
-  "bugs": {
-    "url": "https://github.com/murongg/vue3-lazyload/issues"
-  },
-  "config": {
-    "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
-    }
-  },
-  "homepage": "https://github.com/murongg/vue3-lazyload#readme",
   "peerDependencies": {
     "@vue/composition-api": "^1.0.0-rc.1",
     "vue": "^2.0.0 || >=3.0.0"
@@ -79,6 +69,7 @@
     "esno": "^0.14.1",
     "happy-dom": "^3.1.1",
     "husky": "^8.0.1",
+    "lint-staged": "^13.0.0",
     "pnpm": "^6.32.6",
     "prettier": "^2.1.2",
     "rimraf": "^3.0.2",
@@ -87,5 +78,18 @@
     "vite": "^2.9.1",
     "vitest": "^0.9.3",
     "vue": "^3.2.33"
-  }
+  },
+  "lint-staged": {
+    "*": "pnpm run lint:fix"
+  },
+  "typings": "types/index.d.ts",
+  "bugs": {
+    "url": "https://github.com/murongg/vue3-lazyload/issues"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "homepage": "https://github.com/murongg/vue3-lazyload#readme"
 }
