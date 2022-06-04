@@ -35,13 +35,15 @@
     "build": "rimraf dist && unbuild",
     "dev": "unbuild --stub",
     "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "demo:dev": "vite",
     "demo:build": "vite build",
     "prepublishOnly": "nr build",
     "release": "bumpp --commit --push --tag && pnpm publish",
     "start": "esno src/index.ts",
     "test": "vitest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepare": "husky install"
   },
   "typings": "types/index.d.ts",
   "bugs": {
@@ -76,6 +78,7 @@
     "eslint": "^8.13.0",
     "esno": "^0.14.1",
     "happy-dom": "^3.1.1",
+    "husky": "^8.0.1",
     "pnpm": "^6.32.6",
     "prettier": "^2.1.2",
     "rimraf": "^3.0.2",
