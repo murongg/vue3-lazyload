@@ -215,22 +215,22 @@ Set delay in object parameter:
 
 ## 📁 Options
 
-|  key   | description  | default | type |
-|  ----  | ----  | ----  | ----  |
-| loading  | The image used when the image is loaded | - | string |
-| error  | The image used when the image failed to load | -  | string |
-| observerOptions  | IntersectionObserver options | { rootMargin: '0px', threshold: 0.1 } | [IntersectionObserverInit]([链接地址](https://developer.mozilla.org/en-US/docs/Web/API/IntersectionObserver))|
-| log  | Do not print debug info	 | true  | boolean |
-| lifecycle  | Specify state execution function	 | -  | [Lifecycle](#Lifecycle) |
-| delay  | Time in milliseconds an image has to stay visible before loading starts | 0  | number |
+| key             | description                                                             | default                               | type                                                                                                          |
+| --------------- | ----------------------------------------------------------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| loading         | The image used when the image is loaded                                 | -                                     | string                                                                                                        |
+| error           | The image used when the image failed to load                            | -                                     | string                                                                                                        |
+| observerOptions | IntersectionObserver options                                            | { rootMargin: '0px', threshold: 0.1 } | [IntersectionObserverInit]([链接地址](https://developer.mozilla.org/en-US/docs/Web/API/IntersectionObserver)) |
+| log             | Do not print debug info                                                 | true                                  | boolean                                                                                                       |
+| lifecycle       | Specify state execution function                                        | -                                     | [Lifecycle](#Lifecycle)                                                                                       |
+| delay           | Time in milliseconds an image has to stay visible before loading starts | 0                                     | number                                                                                                        |
 
 ## ⛱ Lifecycle Hooks
 
-|  key   | description  |
-|  ----  | ----  |
-| loading  | Image loading |
-| loaded  | Image loaded |
-| error  | Image load error |
+| key     | description      |
+| ------- | ---------------- |
+| loading | Image loading    |
+| loaded  | Image loaded     |
+| error   | Image load error |
 
 ## 📄 TODO
 - [x] Migrate to typescript
@@ -245,3 +245,7 @@ Set delay in object parameter:
 - [ ] LazyImage
 - [ ] LazyContainer
 - [ ] Perfect example
+
+## [Contributors](https://github.com/murongg/vue3-lazyload/graphs/contributors)
+
+![Contributors](https://contrib.rocks/image?repo=murongg/vue3-lazyload)
