@@ -1,6 +1,6 @@
 {
   "name": "vue3-lazyload",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "packageManager": "pnpm@6.32.3",
   "description": "A Vue3.x image lazyload plugin",
   "license": "MIT",
@@ -34,7 +34,7 @@
   "sideEffects": false,
   "scripts": {
     "build": "rimraf dist && unbuild && npm run rollup:build",
-    "rollup:build":"node rollup.config.js",
+    "rollup:build": "node rollup.config.js",
     "dev": "unbuild --stub",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
