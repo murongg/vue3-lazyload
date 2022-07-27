@@ -2,7 +2,7 @@
   <div class="margin" />
   <!-- <img v-lazy="'/example/assets/logo.png'" alt="Vue logo" width="100"> -->
   <h1>Primary</h1>
-  <img v-lazy="{ src: errorlazy.src, lifecycle: errorlazy.lifecycle }" alt="error image" class="image" width="100" />
+  <img v-lazy="{ src: errorlazy.src, lifecycle: errorlazy.lifecycle, error: errorlazy.error }" alt="error image" class="image" width="100" />
   <button @click="change">change</button>
   <h1>v-for</h1>
   <img v-for="item in defaultImages" v-lazy="{ src: item }" alt="Vue logo" class="image" width="100" />
@@ -15,6 +15,7 @@ export default {
   setup() {
     const errorlazy = reactive({
       src: '/example/assets/log1o.png',
+      error: '12.png',
       lifecycle: {
         loading: () => {
           console.log('image loading')

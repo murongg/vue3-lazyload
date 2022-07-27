@@ -127,8 +127,11 @@ export default class Lazy {
         el.onload = null
         this._lifecycle(LifecycleEnum.ERROR, lifecycle, el)
         this._realObserver(el)?.disconnect()
-        if (error)
-          el.setAttribute('src', error)
+        if (error) {
+          const newImageSrc = el.getAttribute('src')
+          if (newImageSrc !== error)
+            el.setAttribute('src', error)
+        }
         this._log(() => { throw new Error(`Image failed to load!And failed src was: ${src} `) })
       })
     }
