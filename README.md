@@ -232,20 +232,6 @@ Set delay in object parameter:
 | loaded  | Image loaded     |
 | error   | Image load error |
 
-## 📄 TODO
-- [x] Migrate to typescript
-- [x] rollup
-- [x] eslint
-- [x] overall unit tests
-- [x] *.d.ts
-- [x] Perfect type
-- [x] lifecycle
-- [x] commitlint & husky
-- [ ] LazyComponent
-- [ ] LazyImage
-- [ ] LazyContainer
-- [ ] Perfect example
-
 ## [Contributors](https://github.com/murongg/vue3-lazyload/graphs/contributors)
 
 ![Contributors](https://contrib.rocks/image?repo=murongg/vue3-lazyload)
