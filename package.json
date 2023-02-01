@@ -1,6 +1,6 @@
 {
   "name": "vue3-lazyload",
-  "version": "0.3.6",
+  "version": "0.4.0-refactored",
   "packageManager": "pnpm@6.32.3",
   "description": "A Vue3.x image lazyload plugin",
   "license": "MIT",
