@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-/* eslint-disable @typescript-eslint/no-empty-function */
 import type { DirectiveBinding } from 'vue-demi'
 import type { LazyOptions, Lifecycle, ValueFormatterObject } from './types'
 import { LifecycleEnum } from './types'
@@ -57,13 +55,7 @@ export default class Lazy {
     const { src, loading, error, lifecycle, delay } = this._valueFormatter(typeof binding === 'string' ? binding : binding.value)
     this._lifecycle(LifecycleEnum.LOADING, lifecycle, el)
     el.setAttribute('src', loading || DEFAULT_LOADING)
-    if (!hasIntersectionObserver) {
-      this.loadImages(el, src, error, lifecycle)
-      this._log(() => {
-        throw new Error('Not support IntersectionObserver!')
-      })
-    }
-    this._initIntersectionObserver(el, src, error, lifecycle, delay)
+    this._tryInitIntersectionObserver(el, src, loading, error, lifecycle, delay)
   }
 
   /**
@@ -76,8 +68,8 @@ export default class Lazy {
     if (!el)
       return
     this._realObserver(el)?.unobserve(el)
-    const { src, error, lifecycle, delay } = this._valueFormatter(typeof binding === 'string' ? binding : binding.value)
-    this._initIntersectionObserver(el, src, error, lifecycle, delay)
+    const { src, loading, error, lifecycle, delay } = this._valueFormatter(typeof binding === 'string' ? binding : binding.value)
+    this._tryInitIntersectionObserver(el, src, loading, error, lifecycle, delay)
   }
 
   /**
@@ -93,51 +85,79 @@ export default class Lazy {
     this._images.delete(el)
   }
 
+  private _tryLoadImage(el: HTMLElement, src: string, onSuccess: ((this: GlobalEventHandlers, ev: Event) => any) | null, onError: OnErrorEventHandler) {
+    const img = new Image()
+    img.src = src
+
+    const _onSuccess = el
+      ? (...p) => {
+          this._setImageSrc(el, src)
+          if (onSuccess)
+            // eslint-disable-next-line prefer-spread
+            onSuccess.apply(undefined, p)
+        }
+      : onSuccess
+
+    this._listenImageStatus(img, _onSuccess, onError)
+
+    return img
+  }
+
   /**
-   * force loading
+   * update image with full lifecycles
    *
    * @param {HTMLElement} el
    * @param {string} src
    * @memberof Lazy
    */
-  public loadImages(el: HTMLElement, src: string, error?: string, lifecycle?: Lifecycle): void {
-    this._setImageSrc(el, src, error, lifecycle)
+  public loadImage(el: HTMLElement, src: string, loading?: string, error?: string, lifecycle?: Lifecycle): void {
+    const onSuccess = () => {
+      this._lifecycle(LifecycleEnum.LOADED, lifecycle, el)
+    }
+
+    const onError = () => {
+      this._listenImageStatus(el, null, null)
+      this._realObserver(el)?.unobserve(el)
+
+      this._lifecycle(LifecycleEnum.ERROR, lifecycle, el)
+      if (error || DEFAULT_ERROR)
+        this._setImageSrc(el, error || DEFAULT_ERROR)
+
+      this._log(() => {
+        throw new Error(`Image failed to load! And failed src was: ${src} `)
+      })
+    }
+
+    // loading state
+    this._lifecycle(LifecycleEnum.LOADING, lifecycle, el)
+    this._setImageSrc(el, loading || DEFAULT_LOADING)
+
+    this._tryLoadImage(el, src, onSuccess, onError)
   }
 
   /**
-   * set img tag src
+   * set img src
    *
    * @private
    * @param {HTMLElement} el
    * @param {string} src
    * @memberof Lazy
    */
-  private _setImageSrc(el: HTMLElement, src: string, error?: string, lifecycle?: Lifecycle): void {
-    if (el.tagName.toLowerCase() === 'img') {
-      if (src) {
-        const preSrc = el.getAttribute('src')
-        if (preSrc !== src)
-          el.setAttribute('src', src)
-      }
-      this._listenImageStatus(el as HTMLImageElement, () => {
-        this._lifecycle(LifecycleEnum.LOADED, lifecycle, el)
-      }, () => {
-        // Fix onload trigger twice, clear onload event
-        // Reload on update
-        el.onload = null
-        this._lifecycle(LifecycleEnum.ERROR, lifecycle, el)
-        this._realObserver(el)?.disconnect()
-        if (error) {
-          const newImageSrc = el.getAttribute('src')
-          if (newImageSrc !== error)
-            el.setAttribute('src', error)
-        }
-        this._log(() => { throw new Error(`Image failed to load!And failed src was: ${src} `) })
+  private _setImageSrc(el: HTMLElement, src: string): void {
+    if (el.tagName.toLowerCase() === 'img')
+      el.setAttribute('src', src)
+    else
+      el.style.backgroundImage = `url('${src}')`
+  }
+
+  private _tryInitIntersectionObserver(el: HTMLElement, src: string, loading?: string, error?: string, lifecycle?: Lifecycle, delay?: number): void {
+    if (!hasIntersectionObserver) {
+      this.loadImage(el, src, loading, error, lifecycle)
+      this._log(() => {
+        throw new Error('Not support IntersectionObserver!')
       })
     }
-    else {
-      el.style.backgroundImage = `url('${src}')`
-    }
+    this._initIntersectionObserver(el, src, loading, error, lifecycle, delay)
   }
 
   /**
@@ -148,33 +168,33 @@ export default class Lazy {
    * @param {string} src
    * @memberof Lazy
    */
-  private _initIntersectionObserver(el: HTMLElement, src: string, error?: string, lifecycle?: Lifecycle, delay?: number): void {
+  private _initIntersectionObserver(el: HTMLElement, src: string, loading?: string, error?: string, lifecycle?: Lifecycle, delay?: number): void {
     const observerOptions = this.options.observerOptions
     this._images.set(el, new IntersectionObserver((entries) => {
       Array.prototype.forEach.call(entries, (entry) => {
         if (delay && delay > 0)
-          this._delayedIntersectionCallback(el, entry, delay, src, error, lifecycle)
+          this._delayedIntersectionCallback(el, entry, delay, src, loading, error, lifecycle)
         else
-          this._intersectionCallback(el, entry, src, error, lifecycle)
+          this._intersectionCallback(el, entry, src, loading, error, lifecycle)
       })
     }, observerOptions))
     this._realObserver(el)?.observe(el)
   }
 
-  private _intersectionCallback(el: HTMLElement, entry: IntersectionObserverEntry, src: string, error?: string, lifecycle?: Lifecycle): void {
+  private _intersectionCallback(el: HTMLElement, entry: IntersectionObserverEntry, src: string, loading?: string, error?: string, lifecycle?: Lifecycle): void {
     if (entry.isIntersecting) {
       this._realObserver(el)?.unobserve(entry.target)
-      this._setImageSrc(el, src, error, lifecycle)
+      this.loadImage(el, src, loading, error, lifecycle)
     }
   }
 
-  private _delayedIntersectionCallback(el: HTMLElement, entry: IntersectionObserverEntry, delay: number, src: string, error?: string, lifecycle?: Lifecycle): void {
+  private _delayedIntersectionCallback(el: HTMLElement, entry: IntersectionObserverEntry, delay: number, src: string, loading?: string, error?: string, lifecycle?: Lifecycle): void {
     if (entry.isIntersecting) {
       if (entry.target.hasAttribute(TIMEOUT_ID_DATA_ATTR))
         return
 
       const timeoutId = setTimeout(() => {
-        this._intersectionCallback(el, entry, src, error, lifecycle)
+        this._intersectionCallback(el, entry, src, loading, error, lifecycle)
         entry.target.removeAttribute(TIMEOUT_ID_DATA_ATTR)
       }, delay)
       entry.target.setAttribute(TIMEOUT_ID_DATA_ATTR, String(timeoutId))
@@ -197,7 +217,7 @@ export default class Lazy {
    * @param {() => void} error
    * @memberof Lazy
    */
-  private _listenImageStatus(image: HTMLImageElement, success: ((this: GlobalEventHandlers, ev: Event) => any) | null, error: OnErrorEventHandler) {
+  private _listenImageStatus(image: HTMLImageElement | HTMLElement, success: ((this: GlobalEventHandlers, ev: Event) => any) | null, error: OnErrorEventHandler) {
     image.onload = success
     image.onerror = error
   }
