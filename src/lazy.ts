@@ -27,7 +27,7 @@ export default class Lazy {
     observerOptions: DEFAULT_OBSERVER_OPTIONS,
     log: true,
     lifecycle: {},
-    logLevel: 'default',
+    logLevel: 'error',
   }
 
   private _images: WeakMap<HTMLElement, IntersectionObserver> = new WeakMap()
