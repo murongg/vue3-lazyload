@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-empty-function */
+/* eslint-disable no-console */
 import type { DirectiveBinding } from 'vue-demi'
 import type { LazyOptions, Lifecycle, ValueFormatterObject } from './types'
 import { LifecycleEnum } from './types'
@@ -26,6 +27,7 @@ export default class Lazy {
     observerOptions: DEFAULT_OBSERVER_OPTIONS,
     log: true,
     lifecycle: {},
+    logLevel: 'default',
   }
 
   private _images: WeakMap<HTMLElement, IntersectionObserver> = new WeakMap()
@@ -60,7 +62,7 @@ export default class Lazy {
     if (!hasIntersectionObserver) {
       this.loadImages(el, src, error, lifecycle)
       this._log(() => {
-        throw new Error('Not support IntersectionObserver!')
+        this._logger('Not support IntersectionObserver!')
       })
     }
     this._initIntersectionObserver(el, src, error, lifecycle, delay)
@@ -132,7 +134,7 @@ export default class Lazy {
           if (newImageSrc !== error)
             el.setAttribute('src', error)
         }
-        this._log(() => { throw new Error(`Image failed to load!And failed src was: ${src} `) })
+        this._log(() => { this._logger(`Image failed to load!And failed src was: ${src} `) })
       })
     }
     else {
@@ -278,5 +280,26 @@ export default class Lazy {
 
   private _realObserver(el: HTMLElement): IntersectionObserver | undefined {
     return this._images.get(el)
+  }
+
+  private _logger(message?: any, ...optionalParams: any[]) {
+    let log = console.error
+    switch (this.options.logLevel) {
+      case 'error':
+        log = console.error
+        break
+      case 'warn':
+        log = console.warn
+        break
+      case 'info':
+        log = console.info
+        break
+      case 'debug':
+        log = console.debug
+        break
+      default:
+        break
+    }
+    log(message, optionalParams)
   }
 }

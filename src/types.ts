@@ -3,6 +3,7 @@ export interface LazyOptions {
   loading?: string
   observerOptions?: IntersectionObserverInit
   log?: boolean
+  logLevel?: 'error' | 'warn' | 'info' | 'debug' | 'log'
   lifecycle?: Lifecycle
   delay?: number
 }
