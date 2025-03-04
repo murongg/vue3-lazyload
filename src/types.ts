@@ -6,6 +6,7 @@ export interface LazyOptions {
   logLevel?: 'error' | 'warn' | 'info' | 'debug' | 'log'
   lifecycle?: Lifecycle
   delay?: number
+  parser?: Parser
 }
 
 export interface ValueFormatterObject {
@@ -25,3 +26,5 @@ export enum LifecycleEnum {
 export type Lifecycle = {
   [x in LifecycleEnum]?: (el?: HTMLElement) => void;
 }
+
+export type Parser = (src: string, el?: HTMLElement) => string

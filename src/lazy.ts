@@ -28,6 +28,7 @@ export default class Lazy {
     log: true,
     lifecycle: {},
     logLevel: 'error',
+    parser: a => a,
   }
 
   private _images: WeakMap<HTMLElement, IntersectionObserver> = new WeakMap()
@@ -42,7 +43,7 @@ export default class Lazy {
    * @param {*} [options={}]
    * @memberof Lazy
    */
-  public config(options = {}): void {
+  public config(options: LazyOptions = {}): void {
     assign(this.options, options)
   }
 
@@ -56,7 +57,7 @@ export default class Lazy {
   public mount(el: HTMLElement, binding: string | DirectiveBinding<string | ValueFormatterObject>): void {
     if (!el)
       return
-    const { src, loading, error, lifecycle, delay } = this._valueFormatter(typeof binding === 'string' ? binding : binding.value)
+    const { src, loading, error, lifecycle, delay } = this._valueFormatter(typeof binding === 'string' ? binding : binding.value, el)
     this._lifecycle(LifecycleEnum.LOADING, lifecycle, el)
     el.setAttribute('src', loading || DEFAULT_LOADING)
     if (!hasIntersectionObserver) {
@@ -78,7 +79,7 @@ export default class Lazy {
     if (!el)
       return
     this._realObserver(el)?.unobserve(el)
-    const { src, error, lifecycle, delay } = this._valueFormatter(typeof binding === 'string' ? binding : binding.value)
+    const { src, error, lifecycle, delay } = this._valueFormatter(typeof binding === 'string' ? binding : binding.value, el)
     this._initIntersectionObserver(el, src, error, lifecycle, delay)
   }
 
@@ -212,7 +213,7 @@ export default class Lazy {
    * @returns {*}
    * @memberof Lazy
    */
-  public _valueFormatter(value: ValueFormatterObject | string): ValueFormatterObject {
+  public _valueFormatter(value: ValueFormatterObject | string, el: HTMLElement): ValueFormatterObject {
     let src = value as string
     let loading = this.options.loading
     let error = this.options.error
@@ -225,6 +226,9 @@ export default class Lazy {
       lifecycle = ((value as ValueFormatterObject).lifecycle || this.options.lifecycle)
       delay = ((value as ValueFormatterObject).delay || this.options.delay)
     }
+
+    src = this.options?.parser?.(src, el) ?? src
+
     return {
       src,
       loading,

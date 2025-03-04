@@ -15,6 +15,10 @@ export function isObject(val: any): boolean {
   return typeof val === 'function' || toString.call(val) === '[object Object]'
 }
 
+export function isExactObject(val: any): boolean {
+  return toString.call(val) === '[object Object]'
+}
+
 /**
  * is primitive
  *
@@ -110,10 +114,10 @@ export function assign(target: any, ...args: any[]): void {
     if (isObject(args[i])) {
       for (const key of Object.keys(args[i])) {
         if (isValidKey(key)) {
-          if (isObject(target[key]) && isObject(args[i][key]))
-            assign(target[key], args[i][key])
-          else
+          if (typeof args[i][key] === 'function' || isObject(target[key]) || isObject(args[i][key]))
             target[key] = args[i][key]
+          else
+            assign(target[key], args[i][key])
         }
       }
       assignSymbols(target, args[i])
