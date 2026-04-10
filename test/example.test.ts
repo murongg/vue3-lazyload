@@ -12,13 +12,15 @@ function mountExampleApp() {
 }
 
 describe('example app', () => {
-  it('renders the overview and all demo sections', () => {
+  it('renders the playground structure and all demo labs', () => {
     const wrapper = mountExampleApp()
 
     expect(wrapper.text()).toContain('vue3-lazyload')
+    expect(wrapper.text()).toContain('Control Center')
     expect(wrapper.text()).toContain('Directive Demo')
     expect(wrapper.text()).toContain('Hook Demo')
     expect(wrapper.text()).toContain('Lazy Component')
+    expect(wrapper.text()).toContain('Event Console')
     expect(wrapper.text()).toContain('State Panel')
     expect(wrapper.text()).toContain('pnpm add vue3-lazyload')
   })
@@ -31,5 +33,15 @@ describe('example app', () => {
     await wrapper.get('[data-test="hook-switch-source"]').trigger('click')
 
     expect(wrapper.text()).toContain('Alternate source active')
+  })
+
+  it('updates the lazy component mode label from the control center', async () => {
+    const wrapper = mountExampleApp()
+
+    expect(wrapper.text()).toContain('Mode: once')
+
+    await wrapper.get('[data-test="mode-visible"]').trigger('click')
+
+    expect(wrapper.text()).toContain('Mode: visible')
   })
 })

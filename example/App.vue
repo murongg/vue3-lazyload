@@ -5,7 +5,7 @@
         <p class="eyebrow">Vue 3 only</p>
         <h1>vue3-lazyload</h1>
         <p class="hero-text">
-          Directive and hook lazy loading with delay, lifecycle state, and error fallback behavior you can verify at a glance.
+          An interactive playground for directive-based image loading, hook-driven source updates, and component-level lazy mounting.
         </p>
       </div>
 
@@ -17,10 +17,10 @@
       <div class="feature-list">
         <span class="feature-pill">Directive API</span>
         <span class="feature-pill">Hook API</span>
-        <span class="feature-pill">Delay support</span>
-        <span class="feature-pill">Error fallback</span>
-        <span class="feature-pill">State-driven styling</span>
-        <span class="feature-pill">LazyComponent slot mounting</span>
+        <span class="feature-pill">Delay tuning</span>
+        <span class="feature-pill">Observer buffer presets</span>
+        <span class="feature-pill">LazyComponent modes</span>
+        <span class="feature-pill">Event console</span>
       </div>
     </section>
 
@@ -29,13 +29,13 @@
         <p class="eyebrow">What this page proves</p>
         <h2>Real lazy-loading behavior, not a static gallery</h2>
         <p>
-          The demos below intentionally show loading, loaded, and error states, plus runtime source switching and list rendering.
+          The labs below intentionally show loading, loaded, and error states, runtime source switching, mode changes, and recent event flow.
         </p>
       </article>
 
       <article class="overview-card">
-        <p class="eyebrow">Two usage paths</p>
-        <h2>Directive for templates. Hook for component-owned image refs.</h2>
+        <p class="eyebrow">Three usage paths</p>
+        <h2>Directive for templates. Hook for image refs. LazyComponent for whole subtrees.</h2>
         <pre><code>app.use(VueLazyLoad, options)
 &lt;img v-lazy="{ src, loading, error, delay }" /&gt;
 const lazyRef = useLazyload(src, options)
@@ -43,11 +43,39 @@ const lazyRef = useLazyload(src, options)
       </article>
     </section>
 
+    <ControlCenter
+      :delay="controls.delay"
+      :mode="controls.mode"
+      :root-margin="controls.rootMargin"
+      @update:delay="updateDelay"
+      @update:mode="updateMode"
+      @update:root-margin="updateRootMargin"
+    />
+
     <section class="demo-stack">
-      <DirectiveDemo @state-change="handleDirectiveStateChange" />
-      <HookDemo @state-change="handleHookStateChange" />
-      <LazyComponentDemo @state-change="handleLazyComponentStateChange" />
+      <DirectiveDemo
+        :delay="controls.delay"
+        :root-margin="controls.rootMargin"
+        @event="pushEvent"
+        @state-change="handleDirectiveStateChange"
+      />
+      <HookDemo
+        :key="hookDemoKey"
+        :delay="controls.delay"
+        :root-margin="controls.rootMargin"
+        @event="pushEvent"
+        @state-change="handleHookStateChange"
+      />
+      <LazyComponentDemo
+        :delay="controls.delay"
+        :mode="controls.mode"
+        :root-margin="controls.rootMargin"
+        @event="pushEvent"
+        @state-change="handleLazyComponentStateChange"
+      />
     </section>
+
+    <EventConsole :entries="eventEntries" />
 
     <section class="state-panel">
       <header class="section-header">
@@ -74,32 +102,35 @@ const lazyRef = useLazyload(src, options)
     <section class="edge-grid">
       <article class="mini-card">
         <p class="eyebrow">Edge Case</p>
-        <h3>Delay demo</h3>
-        <p>List items wait before loading, which is useful when content only flashes into view.</p>
+        <h3>Delay tuning</h3>
+        <p>Control center presets let you verify how slower or faster visibility delays change each lab.</p>
       </article>
       <article class="mini-card">
         <p class="eyebrow">Edge Case</p>
-        <h3>Error fallback</h3>
-        <p>A broken source swaps into a fallback image so failed requests are obvious but recover gracefully.</p>
+        <h3>Observer buffer</h3>
+        <p>Root margin presets make it easier to understand when an image or component starts preparing before it fully enters view.</p>
       </article>
       <article class="mini-card">
         <p class="eyebrow">Edge Case</p>
         <h3>Source switching</h3>
-        <p>The hook example changes sources at runtime to prove updates still flow through the lazy pipeline.</p>
+        <p>The hook lab changes sources at runtime to prove updates still flow through the lazy pipeline.</p>
       </article>
       <article class="mini-card">
         <p class="eyebrow">Edge Case</p>
-        <h3>Deferred subtree</h3>
-        <p>`LazyComponent` keeps placeholder UI visible until the wrapped slot actually intersects.</p>
+        <h3>Visibility modes</h3>
+        <p>`LazyComponent` can keep loaded content mounted once, or mount and unload as the viewport changes.</p>
       </article>
     </section>
   </main>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import type { DemoState, DirectiveDemoStates } from './demo'
+import { computed, inject, ref, watch } from 'vue'
+import type Lazy from '../src/lazy'
+import type { DemoState, DirectiveDemoStates, PlaygroundControls } from './demo'
+import ControlCenter from './components/control-center.vue'
 import DirectiveDemo from './components/directive.vue'
+import EventConsole from './components/event-console.vue'
 import HookDemo from './components/hook.vue'
 import LazyComponentDemo from './components/lazy-component-demo.vue'
 import StateBadge from './components/state-badge.vue'
@@ -111,6 +142,19 @@ const directiveStates = ref<DirectiveDemoStates>({
 
 const hookState = ref<DemoState>('idle')
 const lazyComponentState = ref<DemoState>('loading')
+const lazy = inject<Lazy | null>('Lazyload', null)
+const eventEntries = ref<string[]>([
+  'playground ready',
+  'control.delay 180ms',
+  'control.mode once',
+])
+const controls = ref<PlaygroundControls>({
+  delay: 180,
+  mode: 'once',
+  rootMargin: '120px',
+})
+
+const hookDemoKey = computed(() => `${controls.value.delay}-${controls.value.rootMargin}`)
 
 const stateRows = computed(() => [
   {
@@ -134,6 +178,43 @@ const stateRows = computed(() => [
     state: lazyComponentState.value,
   },
 ])
+
+watch(() => controls.value.rootMargin, (rootMargin) => {
+  lazy?.config({
+    observerOptions: {
+      rootMargin,
+      threshold: 0,
+    },
+  })
+}, { immediate: true })
+
+function pushEvent(entry: string): void {
+  eventEntries.value = [entry, ...eventEntries.value].slice(0, 10)
+}
+
+function updateDelay(delay: number): void {
+  controls.value = {
+    ...controls.value,
+    delay,
+  }
+  pushEvent(`control.delay ${delay}ms`)
+}
+
+function updateMode(mode: PlaygroundControls['mode']): void {
+  controls.value = {
+    ...controls.value,
+    mode,
+  }
+  pushEvent(`control.mode ${mode}`)
+}
+
+function updateRootMargin(rootMargin: string): void {
+  controls.value = {
+    ...controls.value,
+    rootMargin,
+  }
+  pushEvent(`control.rootMargin ${rootMargin}`)
+}
 
 function handleDirectiveStateChange(nextStates: DirectiveDemoStates): void {
   directiveStates.value = nextStates
@@ -180,7 +261,9 @@ pre {
 
 .hero-card,
 .overview-card,
+.control-card,
 .demo-card,
+.console-card,
 .state-panel,
 .mini-card {
   backdrop-filter: blur(10px);
@@ -192,6 +275,8 @@ pre {
 
 .hero-card,
 .demo-card,
+.control-card,
+.console-card,
 .state-panel {
   padding: 1.75rem;
 }

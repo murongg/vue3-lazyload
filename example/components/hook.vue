@@ -16,7 +16,7 @@
         <div class="preview-header">
           <div>
             <h3>Hook-controlled element</h3>
-            <p>{{ activeLabel }}</p>
+            <p>{{ activeLabel }} • Delay {{ props.delay }}ms • Root margin {{ props.rootMargin }}</p>
           </div>
           <StateBadge :state="hookState" />
         </div>
@@ -37,13 +37,15 @@
         <p class="eyebrow">Usage Snapshot</p>
         <pre><code>const src = ref('...')
 const lazyRef = useLazyload(src, {
+  delay,
+  observerOptions: { rootMargin },
   lifecycle: { loading, loaded, error },
 })</code></pre>
 
         <ul class="benefit-list">
           <li>Works well when the source is reactive.</li>
           <li>Lets the component own source switching logic.</li>
-          <li>Keeps the same lifecycle contract as the directive path.</li>
+          <li>Can merge local overrides on top of plugin defaults.</li>
         </ul>
       </aside>
     </div>
@@ -57,7 +59,13 @@ import loadingAsset from '../assets/logo.png'
 import type { DemoState } from '../demo'
 import StateBadge from './state-badge.vue'
 
+const props = defineProps<{
+  delay: number
+  rootMargin: string
+}>()
+
 const emit = defineEmits<{
+  event: [string]
   'state-change': [DemoState]
 }>()
 
@@ -72,11 +80,25 @@ const activeLabel = ref('Default source active')
 const hookState = ref<DemoState>('idle')
 
 const lazyRef = useLazyload(src, {
+  delay: props.delay,
   loading: loadingAsset,
+  observerOptions: {
+    rootMargin: props.rootMargin,
+    threshold: 0,
+  },
   lifecycle: {
-    error: () => { hookState.value = 'error' },
-    loaded: () => { hookState.value = 'loaded' },
-    loading: () => { hookState.value = 'loading' },
+    error: () => {
+      hookState.value = 'error'
+      emit('event', 'hook error')
+    },
+    loaded: () => {
+      hookState.value = 'loaded'
+      emit('event', 'hook loaded')
+    },
+    loading: () => {
+      hookState.value = 'loading'
+      emit('event', 'hook loading')
+    },
   },
 })
 
@@ -85,6 +107,7 @@ function switchSource(): void {
   src.value = sources[sourceIndex.value]
   activeLabel.value = sourceIndex.value === 0 ? 'Default source active' : 'Alternate source active'
   hookState.value = 'idle'
+  emit('event', `hook source switched to ${sourceIndex.value === 0 ? 'default' : 'alternate'}`)
 }
 
 function resetSource(): void {
@@ -92,6 +115,7 @@ function resetSource(): void {
   src.value = sources[0]
   activeLabel.value = 'Default source active'
   hookState.value = 'idle'
+  emit('event', 'hook source reset')
 }
 
 watch(hookState, () => {

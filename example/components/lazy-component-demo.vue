@@ -5,7 +5,7 @@
         <p class="eyebrow">Lazy Component</p>
         <h2>Mount a whole subtree only when it reaches the viewport</h2>
         <p class="section-copy">
-          `LazyComponent` keeps placeholder UI mounted first, then reveals the default slot after intersection and optional delay.
+          `LazyComponent` can keep mounted content after the first reveal or mount and unmount with visibility. The control center switches the active mode.
         </p>
       </div>
       <StateBadge :state="componentState" label="Component" />
@@ -16,15 +16,19 @@
         <div class="preview-header">
           <div>
             <h3>Deferred slot rendering</h3>
-            <p>Useful when you want to postpone mounting expensive cards, charts, or nested components.</p>
+            <p>Mode: {{ props.mode }} • Delay {{ props.delay }}ms • Root margin {{ props.rootMargin }}</p>
           </div>
           <StateBadge :state="componentState" />
         </div>
 
         <LazyComponent
-          :delay="220"
-          :observer-options="{ rootMargin: '120px 0px' }"
+          :delay="props.delay"
+          :mode="props.mode"
+          :observer-options="{ rootMargin: props.rootMargin, threshold: 0 }"
           class="lazy-shell"
+          @load="handleLoad"
+          @unload="handleUnload"
+          @visible-change="handleVisibleChange"
         >
           <template #placeholder>
             <div class="placeholder-card" data-test="lazy-component-placeholder">
@@ -35,21 +39,42 @@
             </div>
           </template>
 
-          <LazyContentCard data-test="lazy-component-content" @ready="handleReady" />
+          <LazyContentCard data-test="lazy-component-content" />
         </LazyComponent>
+
+        <div class="stats-grid">
+          <div class="stat-chip">
+            <span>Visible</span>
+            <strong>{{ visible ? 'true' : 'false' }}</strong>
+          </div>
+          <div class="stat-chip">
+            <span>Loads</span>
+            <strong>{{ loadCount }}</strong>
+          </div>
+          <div class="stat-chip">
+            <span>Unloads</span>
+            <strong>{{ unloadCount }}</strong>
+          </div>
+        </div>
       </article>
 
       <aside class="snippet-card">
         <p class="eyebrow">Usage Snapshot</p>
-        <pre><code>&lt;LazyComponent :delay="220"&gt;
+        <pre><code>&lt;LazyComponent
+  :delay="delay"
+  :mode="mode"
+  @visible-change="onVisibleChange"
+  @load="onLoad"
+  @unload="onUnload"
+&gt;
   &lt;template #placeholder&gt;Loading card...&lt;/template&gt;
   &lt;ExpensiveChart /&gt;
 &lt;/LazyComponent&gt;</code></pre>
 
         <ul class="benefit-list">
-          <li>Defers the whole slot subtree instead of only swapping image sources.</li>
-          <li>Supports placeholders so the layout remains stable before reveal.</li>
-          <li>Uses the same observer and delay model as the image directive path.</li>
+          <li>`once` keeps content mounted after the first reveal.</li>
+          <li>`visible` mounts on enter and unloads on leave.</li>
+          <li>Events make it easy to log visibility and mount cycles.</li>
         </ul>
       </aside>
     </div>
@@ -58,22 +83,49 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import type { DemoState } from '../demo'
+import type { DemoMode, DemoState } from '../demo'
 import LazyContentCard from './lazy-content-card.vue'
 import StateBadge from './state-badge.vue'
 
+const props = defineProps<{
+  delay: number
+  mode: DemoMode
+  rootMargin: string
+}>()
+
 const emit = defineEmits<{
+  event: [string]
   'state-change': [DemoState]
 }>()
 
 const componentState = ref<DemoState>('loading')
+const visible = ref(false)
+const loadCount = ref(0)
+const unloadCount = ref(0)
 
-function handleReady(): void {
+function handleLoad(): void {
   componentState.value = 'loaded'
+  loadCount.value += 1
+  emit('event', `lazy-component.${props.mode} load`)
+}
+
+function handleUnload(): void {
+  componentState.value = 'loading'
+  unloadCount.value += 1
+  emit('event', `lazy-component.${props.mode} unload`)
+}
+
+function handleVisibleChange(nextValue: boolean): void {
+  visible.value = nextValue
+  emit('event', `lazy-component.${props.mode} visible-change ${nextValue}`)
 }
 
 watch(componentState, () => {
   emit('state-change', componentState.value)
+}, { immediate: true })
+
+watch(() => props.mode, (nextMode) => {
+  emit('event', `lazy-component mode set to ${nextMode}`)
 }, { immediate: true })
 </script>
 
@@ -112,6 +164,31 @@ watch(componentState, () => {
 .lazy-shell {
   display: block;
   margin-top: 1rem;
+}
+
+.stats-grid {
+  display: grid;
+  gap: 0.8rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 1rem;
+}
+
+.stat-chip {
+  background: rgba(15, 23, 42, 0.04);
+  border-radius: 1rem;
+  padding: 0.85rem 0.95rem;
+}
+
+.stat-chip span,
+.stat-chip strong {
+  display: block;
+  margin: 0;
+}
+
+.stat-chip span {
+  color: #526072;
+  font-size: 0.8rem;
+  margin-bottom: 0.2rem;
 }
 
 .placeholder-card {
@@ -159,6 +236,10 @@ watch(componentState, () => {
   .preview-header {
     align-items: start;
     flex-direction: column;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
   }
 }
 </style>

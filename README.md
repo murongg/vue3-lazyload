@@ -25,6 +25,7 @@ A Vue 3 lazyload plugin for images and component subtrees.
 - 🌎 **Browser support:** Use it through CDN
 - 😊 **Support Hook:** useLazyload
 - 🧱 **Support LazyComponent:** Defer mounting slot content until it enters the viewport
+- 🔁 **Support modes and events:** Keep content mounted once loaded, or mount/unmount with visibility events
 
 ## 📎 Installation
 ```sh
@@ -69,6 +70,16 @@ App.vue:
   <img v-lazy="your image url" />
 </template>
 ```
+
+## Which API Should I Use?
+
+| API | Best for | What it controls |
+| --- | --- | --- |
+| `v-lazy` | Regular template images | Swaps image `src` when the element becomes visible |
+| `useLazyload` | Images managed inside component logic | Reuses plugin defaults and lets the component drive source updates |
+| `LazyComponent` | Expensive cards, charts, or nested subtrees | Delays mounting a whole slot subtree |
+
+`v-lazy` and `useLazyload` are image-oriented. `LazyComponent` is for component-level lazy mounting.
 
 ### v-lazy use object params
 
@@ -145,14 +156,16 @@ export default {
 ```
 
 ### Use Hook
+
 ```vue
 <script lang="ts">
 import { ref } from 'vue'
 import { useLazyload } from 'vue3-lazyload'
+
 export default {
   name: 'App',
   setup() {
-    const src = ref('/example/assets/logo.png')
+    const src = ref('https://picsum.photos/id/64/720/420')
     const lazyRef = useLazyload(src, {
       lifecycle: {
         loading: () => {
@@ -166,23 +179,39 @@ export default {
         }
       }
     })
+
+    function switchSource() {
+      src.value = 'https://picsum.photos/id/65/720/420'
+    }
+
     return {
-      lazyRef
+      lazyRef,
+      switchSource,
     }
   }
 }
 </script>
 
 <template>
-  <img ref="lazyRef" class="image" width="100">
+  <img ref="lazyRef" class="image" width="320">
+  <button @click="switchSource">
+    Switch source
+  </button>
 </template>
 ```
 
+If you install the plugin with `app.use(VueLazyLoad, options)`, `useLazyload()` will reuse the injected lazyload instance by default. If you pass local options to the hook, they are merged on top of the plugin defaults without mutating the global instance.
+
 ### Use LazyComponent
+
+Use `LazyComponent` when the expensive part is not an image but a whole component subtree.
 
 ```vue
 <template>
-  <LazyComponent :delay="220">
+  <LazyComponent
+    :delay="220"
+    mode="once"
+  >
     <template #placeholder>
       <div class="card-skeleton">
         Loading card...
@@ -194,7 +223,61 @@ export default {
 </template>
 ```
 
-`LazyComponent` is useful when you want to delay mounting a whole subtree instead of only swapping an image source. It supports the same delay model as `v-lazy`, and keeps the placeholder slot rendered until the wrapper intersects.
+`LazyComponent` supports two modes:
+
+- `mode="once"`: mount the slot the first time it becomes visible, then keep it mounted
+- `mode="visible"`: mount on enter, unmount on leave, and restore the placeholder
+
+Example with visibility events:
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const visible = ref(false)
+const mounts = ref(0)
+const unmounts = ref(0)
+</script>
+
+<template>
+  <LazyComponent
+    mode="visible"
+    :delay="180"
+    @visible-change="visible = $event"
+    @load="mounts += 1"
+    @unload="unmounts += 1"
+  >
+    <template #placeholder>
+      <div>Waiting for viewport entry...</div>
+    </template>
+
+    <ExpensiveChart />
+  </LazyComponent>
+
+  <p>Visible: {{ visible }}</p>
+  <p>Mounts: {{ mounts }}</p>
+  <p>Unmounts: {{ unmounts }}</p>
+</template>
+```
+
+`LazyComponent` is SSR-safe by default: the server render starts from the placeholder and the real slot content mounts only after client-side visibility is known.
+
+### LazyComponent Props
+
+| prop | description | default | type |
+| --- | --- | --- | --- |
+| `mode` | Mount strategy for the default slot | `'once'` | `'once' \| 'visible'` |
+| `delay` | Time in milliseconds the component must remain visible before mounting | inherited from plugin options | `number` |
+| `observerOptions` | IntersectionObserver options for the wrapper | inherited rootMargin/threshold defaults | `IntersectionObserverInit` |
+| `tag` | Root element tag rendered by `LazyComponent` | `'div'` | `string` |
+
+### LazyComponent Events
+
+| event | payload | description |
+| --- | --- | --- |
+| `visible-change` | `boolean` | Fires whenever the wrapper enters or leaves the viewport |
+| `load` | none | Fires when the default slot is mounted |
+| `unload` | none | Fires when `mode="visible"` unmounts the default slot |
 
 #### Use css state
 

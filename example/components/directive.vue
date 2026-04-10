@@ -25,7 +25,7 @@
           v-lazy="{
             src: primarySource,
             loading: loadingAsset,
-            delay: 180,
+            delay: props.delay,
             lifecycle: primaryLifecycle,
           }"
           alt="Primary directive demo"
@@ -36,7 +36,7 @@
           <button class="demo-button" type="button" @click="switchPrimarySource">
             Switch directive source
           </button>
-          <p class="status-copy">{{ primaryLabel }}</p>
+          <p class="status-copy">{{ primaryLabel }} • Delay {{ props.delay }}ms • Root margin {{ props.rootMargin }}</p>
         </div>
       </article>
 
@@ -74,12 +74,13 @@
       <pre><code>&lt;img
   v-lazy="{ src, loading, error, delay, lifecycle }"
 /&gt;</code></pre>
+      <p class="status-copy">Observer buffer is currently set to <strong>{{ props.rootMargin }}</strong>.</p>
     </div>
 
     <section class="mini-section">
       <div class="mini-section-header">
         <h3>Delayed list rendering</h3>
-        <p>These items only load after remaining visible long enough to pass the configured delay.</p>
+        <p>These items only load after remaining visible long enough to pass the current delay preset.</p>
       </div>
 
       <div class="gallery-grid">
@@ -88,7 +89,7 @@
             v-lazy="{
               src: item.src,
               loading: loadingAsset,
-              delay: 320,
+              delay: props.delay,
             }"
             :alt="item.title"
             class="gallery-image"
@@ -109,7 +110,13 @@ import loadingAsset from '../assets/logo.png'
 import type { DemoState, DirectiveDemoStates } from '../demo'
 import StateBadge from './state-badge.vue'
 
+const props = defineProps<{
+  delay: number
+  rootMargin: string
+}>()
+
 const emit = defineEmits<{
+  event: [string]
   'state-change': [DirectiveDemoStates]
 }>()
 
@@ -149,26 +156,36 @@ const delayedImages = [
   },
 ]
 
-const primaryLifecycle = {
-  error: () => { primaryState.value = 'error' },
-  loaded: () => { primaryState.value = 'loaded' },
-  loading: () => { primaryState.value = 'loading' },
+function createLifecycle(label: 'primary' | 'fallback', state: typeof primaryState) {
+  return {
+    error: () => {
+      state.value = 'error'
+      emit('event', `directive.${label} error`)
+    },
+    loaded: () => {
+      state.value = 'loaded'
+      emit('event', `directive.${label} loaded`)
+    },
+    loading: () => {
+      state.value = 'loading'
+      emit('event', `directive.${label} loading`)
+    },
+  }
 }
 
-const fallbackLifecycle = {
-  error: () => { fallbackState.value = 'error' },
-  loaded: () => { fallbackState.value = 'loaded' },
-  loading: () => { fallbackState.value = 'loading' },
-}
+const primaryLifecycle = createLifecycle('primary', primaryState)
+const fallbackLifecycle = createLifecycle('fallback', fallbackState)
 
 function switchPrimarySource(): void {
   primaryState.value = 'idle'
   primaryIndex.value = primaryIndex.value === 0 ? 1 : 0
+  emit('event', `directive.primary switched to ${primaryIndex.value === 0 ? 'default' : 'alternate'} source`)
 }
 
 function retryFallback(): void {
   fallbackState.value = 'idle'
   fallbackAttempt.value += 1
+  emit('event', `directive.fallback retry ${fallbackAttempt.value}`)
 }
 
 watch([primaryState, fallbackState], () => {
