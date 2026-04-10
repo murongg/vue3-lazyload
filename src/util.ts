@@ -1,6 +1,8 @@
 export const inBrowser = typeof window !== 'undefined' && window !== null
 
-export const hasIntersectionObserver = checkIntersectionObserver()
+export function hasIntersectionObserver(): boolean {
+  return checkIntersectionObserver()
+}
 
 export function isObject(val: unknown): boolean {
   return typeof val === 'function' || Object.prototype.toString.call(val) === '[object Object]'

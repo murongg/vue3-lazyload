@@ -87,7 +87,7 @@ describe('Lazy', () => {
       const actual = await vi.importActual<typeof import('../src/util')>('../src/util')
       return {
         ...actual,
-        hasIntersectionObserver: false,
+        hasIntersectionObserver: () => false,
       }
     })
 
@@ -101,6 +101,42 @@ describe('Lazy', () => {
     expect(img.getAttribute('src')).toBe('test-src')
 
     globalThis.IntersectionObserver = originalIntersectionObserver
+  })
+
+  it('checks IntersectionObserver support at mount time for late polyfills', async () => {
+    const originalIntersectionObserver = globalThis.IntersectionObserver
+    const originalIntersectionObserverEntry = globalThis.IntersectionObserverEntry
+
+    delete (globalThis as { IntersectionObserver?: typeof IntersectionObserver }).IntersectionObserver
+    delete (globalThis as { IntersectionObserverEntry?: typeof IntersectionObserverEntry }).IntersectionObserverEntry
+
+    const { default: LazyWithDynamicSupport } = await import('../src/lazy')
+    const observeSpy = vi.fn()
+
+    class DynamicIntersectionObserver {
+      observe = observeSpy
+      unobserve = vi.fn()
+      disconnect = vi.fn()
+    }
+
+    class DynamicIntersectionObserverEntry {}
+
+    Object.defineProperty(DynamicIntersectionObserverEntry.prototype, 'intersectionRatio', {
+      value: 1,
+    })
+
+    globalThis.IntersectionObserver = DynamicIntersectionObserver as any
+    globalThis.IntersectionObserverEntry = DynamicIntersectionObserverEntry as any
+
+    const img = document.createElement('img')
+    const latePolyfillLazy = new LazyWithDynamicSupport({ log: false })
+
+    latePolyfillLazy.mount(img, 'late-polyfill-src')
+
+    expect(observeSpy).toHaveBeenCalledTimes(1)
+
+    globalThis.IntersectionObserver = originalIntersectionObserver
+    globalThis.IntersectionObserverEntry = originalIntersectionObserverEntry
   })
 
   it('skips reloading when update receives the same normalized value', () => {

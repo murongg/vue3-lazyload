@@ -32,7 +32,7 @@ export default class Lazy {
     this.elementValues.set(el, value)
     applyLoadingState(el, value)
 
-    if (!hasIntersectionObserver) {
+    if (!hasIntersectionObserver()) {
       this.loadImages(el, value.src, value.error, value.lifecycle)
       this._logger('IntersectionObserver is not supported; loading immediately.')
       return
@@ -54,7 +54,7 @@ export default class Lazy {
     this.elementValues.set(el, value)
     applyLoadingState(el, value)
 
-    if (!hasIntersectionObserver) {
+    if (!hasIntersectionObserver()) {
       this.loadImages(el, value.src, value.error, value.lifecycle)
       return
     }

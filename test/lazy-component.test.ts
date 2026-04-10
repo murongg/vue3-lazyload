@@ -77,7 +77,7 @@ async function loadPlugin() {
     const actual = await vi.importActual<typeof import('../src/util')>('../src/util')
     return {
       ...actual,
-      hasIntersectionObserver: true,
+      hasIntersectionObserver: () => true,
     }
   })
 
@@ -156,5 +156,25 @@ describe('LazyComponent', () => {
     vi.advanceTimersByTime(1)
     await nextTick()
     expect(wrapper.find('[data-test="lazy-content"]').exists()).toBe(true)
+  })
+
+  it('renders the placeholder during SSR before client-side reveal', async () => {
+    const { createSSRApp, h } = await import('vue')
+    const { renderToString } = await import('@vue/server-renderer')
+    const { LazyComponent } = await import('../src')
+
+    const app = createSSRApp({
+      render() {
+        return h(LazyComponent, null, {
+          default: () => h('section', { 'data-test': 'lazy-content' }, 'Deferred content is now mounted'),
+          placeholder: () => h('p', { 'data-test': 'placeholder' }, 'Waiting to enter the viewport'),
+        })
+      },
+    })
+
+    const html = await renderToString(app)
+
+    expect(html).toContain('data-test="placeholder"')
+    expect(html).not.toContain('data-test="lazy-content"')
   })
 })

@@ -29,7 +29,7 @@ export const LazyComponent = defineComponent({
   },
   setup(props: LazyComponentProps, { attrs, slots }) {
     const target = ref<HTMLElement | null>(null)
-    const isLoaded = ref(!hasIntersectionObserver)
+    const isLoaded = ref(false)
     const lazy = inject<Lazy | null>('Lazyload', null)
     let observer: LazyObserver<LazyComponentObserverValue> | undefined
 
@@ -58,7 +58,7 @@ export const LazyComponent = defineComponent({
       if (!target.value)
         return
 
-      if (!hasIntersectionObserver) {
+      if (!hasIntersectionObserver()) {
         reveal()
         return
       }
