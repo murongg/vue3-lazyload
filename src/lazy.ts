@@ -10,6 +10,7 @@ export default class Lazy {
   public options: ResolvedLazyOptions
 
   private readonly observer: LazyObserver
+  private readonly elementValues = new WeakMap<HTMLElement, NormalizedLazyValue>()
 
   constructor(options?: LazyOptions) {
     this.options = resolveLazyOptions(options)
@@ -28,6 +29,7 @@ export default class Lazy {
       return
 
     const value = this._valueFormatter(this._getBindingValue(binding))
+    this.elementValues.set(el, value)
     applyLoadingState(el, value)
 
     if (!hasIntersectionObserver) {
@@ -44,6 +46,12 @@ export default class Lazy {
       return
 
     const value = this._valueFormatter(this._getBindingValue(binding))
+    const previousValue = this.elementValues.get(el)
+
+    if (previousValue && this._isSameValue(previousValue, value))
+      return
+
+    this.elementValues.set(el, value)
     applyLoadingState(el, value)
 
     if (!hasIntersectionObserver) {
@@ -58,6 +66,7 @@ export default class Lazy {
     if (!el)
       return
 
+    this.elementValues.delete(el)
     this.observer.unobserve(el)
   }
 
@@ -84,6 +93,14 @@ export default class Lazy {
 
   private _getBindingValue(binding: string | DirectiveBinding<string | ValueFormatterObject>): string | ValueFormatterObject {
     return typeof binding === 'string' ? binding : binding.value
+  }
+
+  private _isSameValue(previousValue: NormalizedLazyValue, nextValue: NormalizedLazyValue): boolean {
+    return previousValue.src === nextValue.src
+      && previousValue.loading === nextValue.loading
+      && previousValue.error === nextValue.error
+      && previousValue.delay === nextValue.delay
+      && previousValue.lifecycle === nextValue.lifecycle
   }
 
   private _logger(message?: unknown, ...optionalParams: unknown[]): void {

@@ -102,4 +102,70 @@ describe('Lazy', () => {
 
     globalThis.IntersectionObserver = originalIntersectionObserver
   })
+
+  it('skips reloading when update receives the same normalized value', () => {
+    const img = document.createElement('img')
+    const loadingSpy = vi.spyOn(img, 'setAttribute')
+    const loadSpy = vi.spyOn(lazy, 'loadImages')
+    const lifecycle = {}
+
+    lazy.mount(img, {
+      value: {
+        delay: 120,
+        error: 'error-src',
+        lifecycle,
+        loading: 'loading-src',
+        src: 'same-src',
+      },
+    } as any)
+    loadingSpy.mockClear()
+    loadSpy.mockClear()
+
+    lazy.update(img, {
+      oldValue: {
+        delay: 120,
+        error: 'error-src',
+        lifecycle,
+        loading: 'loading-src',
+        src: 'same-src',
+      },
+      value: {
+        delay: 120,
+        error: 'error-src',
+        lifecycle,
+        loading: 'loading-src',
+        src: 'same-src',
+      },
+    } as any)
+
+    expect(loadSpy).not.toHaveBeenCalled()
+    expect(loadingSpy).not.toHaveBeenCalledWith('lazy', 'loading')
+  })
+
+  it('reloads when the normalized value changes', () => {
+    const img = document.createElement('img')
+    const loadSpy = vi.spyOn(lazy, 'loadImages')
+
+    lazy.mount(img, {
+      value: {
+        loading: 'loading-src',
+        src: 'initial-src',
+      },
+    } as any)
+    loadSpy.mockClear()
+
+    lazy.update(img, {
+      oldValue: {
+        loading: 'loading-src',
+        src: 'initial-src',
+      },
+      value: {
+        loading: 'loading-src',
+        src: 'next-src',
+      },
+    } as any)
+
+    expect(loadSpy).toHaveBeenCalledTimes(1)
+    expect(img.getAttribute('lazy')).toBe('loading')
+  })
 })
