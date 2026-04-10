@@ -12,9 +12,12 @@ export interface LazyOptions {
 
 export interface LazyComponentProps {
   delay?: number
+  mode?: LazyComponentMode
   observerOptions?: IntersectionObserverInit
   tag?: string
 }
+
+export type LazyComponentMode = 'once' | 'visible'
 
 export interface ValueFormatterObject {
   delay?: number

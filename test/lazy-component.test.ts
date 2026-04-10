@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import { defineComponent, nextTick } from 'vue'
+import { defineComponent, nextTick, ref } from 'vue'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 class MockIntersectionObserver {
@@ -53,13 +53,44 @@ class MockIntersectionObserverEntry {
   intersectionRatio = 1
 }
 
-function createDemoComponent(delay?: number) {
+function createDemoComponent(delay?: number, mode?: 'once' | 'visible') {
   return defineComponent({
     setup() {
-      return { delay }
+      const loadCount = ref(0)
+      const unloadCount = ref(0)
+      const visibleChanges = ref<boolean[]>([])
+
+      function handleLoad(): void {
+        loadCount.value += 1
+      }
+
+      function handleUnload(): void {
+        unloadCount.value += 1
+      }
+
+      function handleVisibleChange(value: boolean): void {
+        visibleChanges.value = [...visibleChanges.value, value]
+      }
+
+      return {
+        delay,
+        handleLoad,
+        handleUnload,
+        handleVisibleChange,
+        loadCount,
+        mode,
+        unloadCount,
+        visibleChanges,
+      }
     },
     template: `
-      <LazyComponent :delay="delay">
+      <LazyComponent
+        :delay="delay"
+        :mode="mode"
+        @load="handleLoad"
+        @unload="handleUnload"
+        @visible-change="handleVisibleChange"
+      >
         <template #placeholder>
           <p data-test="placeholder">Waiting to enter the viewport</p>
         </template>
@@ -68,6 +99,10 @@ function createDemoComponent(delay?: number) {
           Deferred content is now mounted
         </section>
       </LazyComponent>
+
+      <output data-test="load-count">{{ loadCount }}</output>
+      <output data-test="unload-count">{{ unloadCount }}</output>
+      <output data-test="visible-history">{{ visibleChanges.join(',') }}</output>
     `,
   })
 }
@@ -131,6 +166,9 @@ describe('LazyComponent', () => {
     expect(wrapper.find('[data-test="placeholder"]').exists()).toBe(false)
     expect(wrapper.find('[data-test="lazy-content"]').exists()).toBe(true)
     expect(wrapper.get('[data-lazy-component]').attributes('data-lazy-component')).toBe('loaded')
+    expect(wrapper.get('[data-test="load-count"]').text()).toBe('1')
+    expect(wrapper.get('[data-test="unload-count"]').text()).toBe('0')
+    expect(wrapper.get('[data-test="visible-history"]').text()).toBe('true')
   })
 
   it('respects delay before mounting the default slot', async () => {
@@ -156,6 +194,103 @@ describe('LazyComponent', () => {
     vi.advanceTimersByTime(1)
     await nextTick()
     expect(wrapper.find('[data-test="lazy-content"]').exists()).toBe(true)
+  })
+
+  it('keeps content mounted after leaving the viewport in once mode', async () => {
+    const VueLazyLoad = await loadPlugin()
+
+    const wrapper = mount(createDemoComponent(undefined, 'once'), {
+      global: {
+        plugins: [[VueLazyLoad, { log: false }]],
+      },
+    })
+
+    const observer = MockIntersectionObserver.instances[0]
+    observer.trigger(wrapper.get('[data-lazy-component]').element, true)
+    await nextTick()
+    observer.trigger(wrapper.get('[data-lazy-component]').element, false)
+    await nextTick()
+
+    expect(wrapper.find('[data-test="lazy-content"]').exists()).toBe(true)
+    expect(wrapper.find('[data-test="placeholder"]').exists()).toBe(false)
+    expect(wrapper.get('[data-test="load-count"]').text()).toBe('1')
+    expect(wrapper.get('[data-test="unload-count"]').text()).toBe('0')
+    expect(wrapper.get('[data-test="visible-history"]').text()).toBe('true,false')
+  })
+
+  it('unloads content after leaving the viewport in visible mode', async () => {
+    const VueLazyLoad = await loadPlugin()
+
+    const wrapper = mount(createDemoComponent(undefined, 'visible'), {
+      global: {
+        plugins: [[VueLazyLoad, { log: false }]],
+      },
+    })
+
+    const observer = MockIntersectionObserver.instances[0]
+    observer.trigger(wrapper.get('[data-lazy-component]').element, true)
+    await nextTick()
+    observer.trigger(wrapper.get('[data-lazy-component]').element, false)
+    await nextTick()
+
+    expect(wrapper.find('[data-test="lazy-content"]').exists()).toBe(false)
+    expect(wrapper.find('[data-test="placeholder"]').exists()).toBe(true)
+    expect(wrapper.get('[data-test="load-count"]').text()).toBe('1')
+    expect(wrapper.get('[data-test="unload-count"]').text()).toBe('1')
+    expect(wrapper.get('[data-test="visible-history"]').text()).toBe('true,false')
+  })
+
+  it('remounts visible mode content on re-entry', async () => {
+    const VueLazyLoad = await loadPlugin()
+
+    const wrapper = mount(createDemoComponent(undefined, 'visible'), {
+      global: {
+        plugins: [[VueLazyLoad, { log: false }]],
+      },
+    })
+
+    const observer = MockIntersectionObserver.instances[0]
+    const element = wrapper.get('[data-lazy-component]').element
+
+    observer.trigger(element, true)
+    await nextTick()
+    observer.trigger(element, false)
+    await nextTick()
+    observer.trigger(element, true)
+    await nextTick()
+
+    expect(wrapper.find('[data-test="lazy-content"]').exists()).toBe(true)
+    expect(wrapper.get('[data-test="load-count"]').text()).toBe('2')
+    expect(wrapper.get('[data-test="unload-count"]').text()).toBe('1')
+    expect(wrapper.get('[data-test="visible-history"]').text()).toBe('true,false,true')
+  })
+
+  it('cancels delayed mount when visible mode leaves before the timer completes', async () => {
+    vi.useFakeTimers()
+    const VueLazyLoad = await loadPlugin()
+
+    const wrapper = mount(createDemoComponent(240, 'visible'), {
+      global: {
+        plugins: [[VueLazyLoad, { log: false }]],
+      },
+    })
+
+    const observer = MockIntersectionObserver.instances[0]
+    const element = wrapper.get('[data-lazy-component]').element
+
+    observer.trigger(element, true)
+    await nextTick()
+    vi.advanceTimersByTime(120)
+    observer.trigger(element, false)
+    await nextTick()
+    vi.advanceTimersByTime(200)
+    await nextTick()
+
+    expect(wrapper.find('[data-test="lazy-content"]').exists()).toBe(false)
+    expect(wrapper.find('[data-test="placeholder"]').exists()).toBe(true)
+    expect(wrapper.get('[data-test="load-count"]').text()).toBe('0')
+    expect(wrapper.get('[data-test="unload-count"]').text()).toBe('0')
+    expect(wrapper.get('[data-test="visible-history"]').text()).toBe('true,false')
   })
 
   it('renders the placeholder during SSR before client-side reveal', async () => {
