@@ -4,17 +4,9 @@ import App from './App.vue'
 
 const app = createApp(App)
 app.use(VueLazyLoad, {
-  log: true,
-  lifecycle: {
-    loading: () => {
-      console.log('loading')
-    },
-    error: () => {
-      console.log('error')
-    },
-    loaded: () => {
-      console.log('loaded')
-    },
+  log: false,
+  observerOptions: {
+    threshold: 0.15,
   },
 })
 app.mount('#app')

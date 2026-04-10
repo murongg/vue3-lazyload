@@ -9,3 +9,4 @@ _site/
 dist/
 shims-vue.d.ts
 example/*
+docs/

@@ -1,4 +1,4 @@
-import type { App } from 'vue-demi'
+import type { App } from 'vue'
 import Lazy from './lazy'
 import type { LazyOptions } from './types'
 export * from './hooks'
@@ -10,7 +10,7 @@ export default {
    * @param {App} Vue
    * @param {LazyOptions} options
    */
-  install(Vue: App, options: LazyOptions): void {
+  install(Vue: App, options?: LazyOptions): void {
     const lazy = new Lazy(options)
 
     Vue.config.globalProperties.$Lazyload = lazy

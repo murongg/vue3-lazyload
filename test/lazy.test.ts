@@ -1,42 +1,105 @@
-import { beforeEach, describe, expect, it } from 'vitest'
-import type { ValueFormatterObject } from '../src/types'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { DEFAULT_ERROR, DEFAULT_LOADING } from '../src/constant'
 import Lazy from '../src/lazy'
+import type { ValueFormatterObject } from '../src/types'
 
-describe('Vue3-lazyload Test', () => {
+describe('Lazy', () => {
   let lazy: Lazy
+
   beforeEach(() => {
     lazy = new Lazy()
   })
 
-  it('test _valueFormatter for string', () => {
-    const result = lazy._valueFormatter('test')
-    expect(result).toEqual({
-      src: 'test',
-      loading: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
-      error: '',
+  afterEach(() => {
+    vi.restoreAllMocks()
+    vi.resetModules()
+    vi.doUnmock('../src/util')
+  })
+
+  it('normalizes string values with global defaults', () => {
+    expect(lazy._valueFormatter('test')).toStrictEqual({
+      delay: undefined,
+      error: DEFAULT_ERROR,
       lifecycle: {},
+      loading: DEFAULT_LOADING,
+      src: 'test',
     })
   })
 
-  it('test _valueFormatter for object', () => {
+  it('normalizes object values', () => {
     const options: ValueFormatterObject = {
-      src: 'test src',
-      loading: 'test loading',
+      delay: 200,
       error: 'test error',
       lifecycle: {},
+      loading: 'test loading',
+      src: 'test src',
     }
-    const result = lazy._valueFormatter(options)
-    expect(result).toEqual(options)
+
+    expect(lazy._valueFormatter(options)).toStrictEqual(options)
   })
 
-  it('test _log', () => {
-    lazy.config({ silent: false })
-    let ThrowError
-    lazy._log(() => {
-      ThrowError = () => {
-        throw new Error('test error')
+  it('preserves falsy overrides instead of falling back to global defaults', () => {
+    lazy.config({
+      delay: 500,
+      error: 'global-error',
+      loading: 'global-loading',
+    })
+
+    expect(lazy._valueFormatter({
+      delay: 0,
+      error: '',
+      lifecycle: {},
+      loading: '',
+      src: 'test src',
+    })).toStrictEqual({
+      delay: 0,
+      error: '',
+      lifecycle: {},
+      loading: '',
+      src: 'test src',
+    })
+  })
+
+  it('does not invoke log callbacks when logging is disabled', () => {
+    const callback = vi.fn()
+
+    lazy.config({ log: false })
+    lazy._log(callback)
+
+    expect(callback).not.toHaveBeenCalled()
+  })
+
+  it('uses console.log for the log logLevel', () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+    lazy.config({ logLevel: 'log' })
+    ;(lazy as any)._logger('hello')
+
+    expect(logSpy).toHaveBeenCalledWith('hello')
+    expect(errorSpy).not.toHaveBeenCalled()
+  })
+
+  it('loads immediately without IntersectionObserver support', async () => {
+    const originalIntersectionObserver = globalThis.IntersectionObserver
+
+    vi.doMock('../src/util', async () => {
+      const actual = await vi.importActual<typeof import('../src/util')>('../src/util')
+      return {
+        ...actual,
+        hasIntersectionObserver: false,
       }
     })
-    expect(ThrowError).toThrowError()
+
+    delete (globalThis as { IntersectionObserver?: typeof IntersectionObserver }).IntersectionObserver
+
+    const { default: LazyWithoutObserver } = await import('../src/lazy')
+    const img = document.createElement('img')
+    const noObserverLazy = new LazyWithoutObserver({ log: false })
+
+    expect(() => noObserverLazy.mount(img, 'test-src')).not.toThrow()
+    expect(img.getAttribute('src')).toBe('test-src')
+
+    globalThis.IntersectionObserver = originalIntersectionObserver
   })
 })

@@ -1,104 +1,69 @@
 {
   "name": "vue3-lazyload",
   "version": "0.3.8",
-  "packageManager": "pnpm@6.32.3",
-  "description": "A Vue3.x image lazyload plugin",
-  "license": "MIT",
+  "packageManager": "pnpm@10.33.0",
+  "description": "A Vue 3 image lazyload plugin",
   "author": "木荣 <admin@imuboy.cn>",
+  "license": "MIT",
+  "homepage": "https://github.com/murongg/vue3-lazyload#readme",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/murongg/vue3-lazyload.git"
   },
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
-  "unpkg": "dist/index.min.js",
-  "exports": {
-    ".": {
-      "require": "./dist/index.cjs",
-      "import": "./dist/index.mjs",
-      "types": "./dist/index.d.ts"
-    }
-  },
-  "typesVersions": {
-    "*": {
-      "*": [
-        "./dist/*",
-        "./dist/index.d.ts"
-      ]
-    }
-  },
-  "files": [
-    "dist"
-  ],
-  "sideEffects": false,
-  "scripts": {
-    "build": "rimraf dist && unbuild && npm run rollup:build",
-    "rollup:build": "node rollup.config.js",
-    "dev": "unbuild --stub",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "demo:dev": "vite",
-    "demo:build": "vite build",
-    "prepublishOnly": "nr build",
-    "release": "bumpp --commit --push --tag && pnpm publish",
-    "start": "esno src/index.ts",
-    "test": "vitest",
-    "typecheck": "tsc --noEmit",
-    "prepare": "husky install"
-  },
-  "peerDependencies": {
-    "@vue/composition-api": "^1.0.0-rc.1",
-    "vue": "^2.0.0 || >=3.0.0"
-  },
-  "peerDependenciesMeta": {
-    "@vue/composition-api": {
-      "optional": true
-    }
-  },
-  "dependencies": {
-    "vue-demi": "^0.12.5"
-  },
-  "devDependencies": {
-    "@babel/core": "^7.18.6",
-    "@babel/types": "^7.17.0",
-    "@murongg/eslint-config": "^0.1.0",
-    "@rollup/plugin-babel": "^5.3.1",
-    "@rollup/plugin-commonjs": "^22.0.1",
-    "@rollup/plugin-node-resolve": "^13.3.0",
-    "@rollup/plugin-typescript": "^8.3.3",
-    "@types/node": "^14.11.8",
-    "@vitejs/plugin-vue": "^2.3.2",
-    "@vue/eslint-config-typescript": "^7.0.0",
-    "@vue/test-utils": "^2.0.0-beta.6",
-    "bumpp": "^7.2.0",
-    "eslint": "^8.13.0",
-    "esno": "^0.14.1",
-    "happy-dom": "^3.1.1",
-    "husky": "^8.0.1",
-    "lint-staged": "^13.0.0",
-    "pnpm": "^6.32.6",
-    "prettier": "^2.1.2",
-    "rimraf": "^3.0.2",
-    "rollup": "^2.75.7",
-    "rollup-plugin-uglify": "^6.0.4",
-    "typescript": "^4.6.3",
-    "unbuild": "^0.7.2",
-    "vite": "^2.9.1",
-    "vitest": "^0.9.3",
-    "vue": "^3.2.33"
-  },
-  "lint-staged": {
-    "*": "pnpm run lint:fix"
-  },
-  "typings": "types/index.d.ts",
   "bugs": {
     "url": "https://github.com/murongg/vue3-lazyload/issues"
   },
-  "config": {
-    "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.mjs"
     }
   },
-  "homepage": "https://github.com/murongg/vue3-lazyload#readme"
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "unpkg": "./dist/index.iife.js",
+  "jsdelivr": "./dist/index.iife.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "rimraf dist && vite build --mode lib",
+    "demo:build": "vite build",
+    "demo:dev": "vite",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "prepublishOnly": "pnpm build",
+    "prepare": "husky",
+    "release": "bumpp --commit --push --tag && pnpm publish",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "vue": "^3.4.0 || ^3.5.0"
+  },
+  "devDependencies": {
+    "@murongg/eslint-config": "^0.2.1",
+    "@types/node": "^25.6.0",
+    "@vitejs/plugin-vue": "^6.0.5",
+    "@vue/test-utils": "^2.4.6",
+    "bumpp": "^11.0.1",
+    "eslint": "^8.57.1",
+    "happy-dom": "^20.8.9",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
+    "prettier": "^3.8.2",
+    "rimraf": "^6.1.3",
+    "typescript": "^5.9.3",
+    "vite": "^8.0.8",
+    "vite-plugin-dts": "^4.5.4",
+    "vitest": "^4.1.4",
+    "vue": "^3.5.32"
+  },
+  "lint-staged": {
+    "*": "pnpm run lint:fix"
+  }
 }

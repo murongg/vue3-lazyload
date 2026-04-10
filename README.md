@@ -15,12 +15,13 @@
 <img src="https://img.shields.io/github/issues-pr/murongg/vue3-lazyload" />
 </div>
 <br />
-A vue3.x image lazyload plugin.  
+A Vue 3 image lazyload plugin.  
 <br />
 
 ## 🚀 Features
-- ⚡ **0 dependencies:** No worry about your bundle size
+- ⚡ **0 runtime dependencies:** No worry about your bundle size
 - 🦾 **Type Strong:** Written in Typescript
+- 🌎 **Vue 3 only:** Built for Vue 3 applications and libraries
 - 🌎 **Browser support:** Use it through CDN
 - 😊 **Support Hook:** useLazyload
 
@@ -29,11 +30,13 @@ A vue3.x image lazyload plugin.
 $ npm i vue3-lazyload
 # or
 $ yarn add vue3-lazyload
+# or
+$ pnpm add vue3-lazyload
 ```
 
 ## 🌎 CDN
 
-CDN:  https://unpkg.com/vue3-lazyload
+CDN: `https://unpkg.com/vue3-lazyload`
 ```html
 <script src="https://unpkg.com/vue3-lazyload"></script>
 <script>
@@ -43,6 +46,8 @@ CDN:  https://unpkg.com/vue3-lazyload
 ```
 
 ## 👽 Usage
+
+This package supports Vue 3 only.
 
 main.js:
 
@@ -103,7 +108,7 @@ app.mount('#app')
 or
 
 In xxx.vue
-> Have to be aware of is v-lazy don't use v-lazy="lazyOptions", in this case, vue cannot monitor data changes.
+> Do not pass a whole reactive object as `v-lazy="lazyOptions"`. Use inline object fields instead, otherwise Vue cannot track nested changes the way you expect.
 
 ```vue
 <script>
@@ -133,7 +138,7 @@ export default {
 </script>
 
 <template>
-  <img v-lazy="{src: lazyOptions.src, lifecycle: lazyOptions.lifecycle}" width="100">
+  <img v-lazy="{ src: lazyOptions.src, lifecycle: lazyOptions.lifecycle }" width="100">
 </template>
 
 ```
@@ -219,9 +224,9 @@ Set delay in object parameter:
 | --------------- | ----------------------------------------------------------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
 | loading         | The image used when the image is loaded                                 | -                                     | string                                                                                                        |
 | error           | The image used when the image failed to load                            | -                                     | string                                                                                                        |
-| observerOptions | IntersectionObserver options                                            | { rootMargin: '0px', threshold: 0.1 } | [IntersectionObserverInit]([链接地址](https://developer.mozilla.org/en-US/docs/Web/API/IntersectionObserver)) |
+| observerOptions | IntersectionObserver options                                            | { rootMargin: '0px', threshold: 0 }   | [IntersectionObserverInit](https://developer.mozilla.org/en-US/docs/Web/API/IntersectionObserver)             |
 | log             | Do print debug info                                                     | true                                  | boolean                                                                                                       |
-| logLevel             |   Log level                | error                                  | 'error' \| 'warn' \| 'info' \| 'debug' \| 'log'                                                                                                       |
+| logLevel        | Log level                                                               | error                                 | 'error' \| 'warn' \| 'info' \| 'debug' \| 'log'                                                              |
 | lifecycle       | Specify state execution function                                        | -                                     | [Lifecycle](#Lifecycle)                                                                                       |
 | delay           | Time in milliseconds an image has to stay visible before loading starts | 0                                     | number                                                                                                        |
 

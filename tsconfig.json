@@ -1,17 +1,23 @@
 {
   "compilerOptions": {
-    "target": "es2017",
-    "module": "esnext",
-    "lib": ["esnext", "DOM", "DOM.Iterable"],
-    "moduleResolution": "node",
-    "declaration": true,
-    "declarationDir": "./types",
+    "target": "ES2020",
+    "module": "ESNext",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "moduleResolution": "Bundler",
     "esModuleInterop": true,
     "strict": true,
     "strictNullChecks": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "skipDefaultLibCheck": true,
-    "jsx": "preserve"
-  }
+    "jsx": "preserve",
+    "isolatedModules": true,
+    "types": ["node", "vite/client"]
+  },
+  "include": [
+    "build.config.ts",
+    "shims-vue.d.ts",
+    "src/**/*.ts",
+    "test/**/*.ts",
+    "vite.config.ts"
+  ]
 }

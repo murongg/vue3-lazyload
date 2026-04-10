@@ -1,19 +1,43 @@
+export type LogLevel = 'error' | 'warn' | 'info' | 'debug' | 'log'
+
 export interface LazyOptions {
-  error?: string
-  loading?: string
-  observerOptions?: IntersectionObserverInit
-  log?: boolean
-  logLevel?: 'error' | 'warn' | 'info' | 'debug' | 'log'
-  lifecycle?: Lifecycle
   delay?: number
+  error?: string
+  lifecycle?: Lifecycle
+  loading?: string
+  log?: boolean
+  logLevel?: LogLevel
+  observerOptions?: IntersectionObserverInit
 }
 
 export interface ValueFormatterObject {
-  src: string
-  error?: string
-  loading?: string
-  lifecycle?: Lifecycle
   delay?: number
+  error?: string
+  lifecycle?: Lifecycle
+  loading?: string
+  src: string
+}
+
+export interface NormalizedLazyValue {
+  delay?: number
+  error: string
+  lifecycle: Lifecycle
+  loading: string
+  src: string
+}
+
+export interface ResolvedLazyOptions extends Omit<LazyOptions, 'error' | 'lifecycle' | 'loading' | 'log' | 'logLevel' | 'observerOptions'> {
+  error: string
+  lifecycle: Lifecycle
+  loading: string
+  log: boolean
+  logLevel: LogLevel
+  observerOptions: IntersectionObserverInit
+}
+
+export interface ObservedElementState {
+  timeoutId?: ReturnType<typeof setTimeout>
+  value: NormalizedLazyValue
 }
 
 export enum LifecycleEnum {
@@ -23,5 +47,5 @@ export enum LifecycleEnum {
 }
 
 export type Lifecycle = {
-  [x in LifecycleEnum]?: (el?: HTMLElement) => void;
+  [x in LifecycleEnum]?: (el?: HTMLElement) => void
 }
