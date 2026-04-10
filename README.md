@@ -15,7 +15,7 @@
 <img src="https://img.shields.io/github/issues-pr/murongg/vue3-lazyload" />
 </div>
 <br />
-A Vue 3 image lazyload plugin.  
+A Vue 3 lazyload plugin for images and component subtrees.  
 <br />
 
 ## 🚀 Features
@@ -24,6 +24,7 @@ A Vue 3 image lazyload plugin.
 - 🌎 **Vue 3 only:** Built for Vue 3 applications and libraries
 - 🌎 **Browser support:** Use it through CDN
 - 😊 **Support Hook:** useLazyload
+- 🧱 **Support LazyComponent:** Defer mounting slot content until it enters the viewport
 
 ## 📎 Installation
 ```sh
@@ -176,6 +177,24 @@ export default {
   <img ref="lazyRef" class="image" width="100">
 </template>
 ```
+
+### Use LazyComponent
+
+```vue
+<template>
+  <LazyComponent :delay="220">
+    <template #placeholder>
+      <div class="card-skeleton">
+        Loading card...
+      </div>
+    </template>
+
+    <ExpensiveChart />
+  </LazyComponent>
+</template>
+```
+
+`LazyComponent` is useful when you want to delay mounting a whole subtree instead of only swapping an image source. It supports the same delay model as `v-lazy`, and keeps the placeholder slot rendered until the wrapper intersects.
 
 #### Use css state
 

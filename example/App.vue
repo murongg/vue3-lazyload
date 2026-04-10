@@ -20,6 +20,7 @@
         <span class="feature-pill">Delay support</span>
         <span class="feature-pill">Error fallback</span>
         <span class="feature-pill">State-driven styling</span>
+        <span class="feature-pill">LazyComponent slot mounting</span>
       </div>
     </section>
 
@@ -37,13 +38,15 @@
         <h2>Directive for templates. Hook for component-owned image refs.</h2>
         <pre><code>app.use(VueLazyLoad, options)
 &lt;img v-lazy="{ src, loading, error, delay }" /&gt;
-const lazyRef = useLazyload(src, options)</code></pre>
+const lazyRef = useLazyload(src, options)
+&lt;LazyComponent&gt;...&lt;/LazyComponent&gt;</code></pre>
       </article>
     </section>
 
     <section class="demo-stack">
       <DirectiveDemo @state-change="handleDirectiveStateChange" />
       <HookDemo @state-change="handleHookStateChange" />
+      <LazyComponentDemo @state-change="handleLazyComponentStateChange" />
     </section>
 
     <section class="state-panel">
@@ -84,6 +87,11 @@ const lazyRef = useLazyload(src, options)</code></pre>
         <h3>Source switching</h3>
         <p>The hook example changes sources at runtime to prove updates still flow through the lazy pipeline.</p>
       </article>
+      <article class="mini-card">
+        <p class="eyebrow">Edge Case</p>
+        <h3>Deferred subtree</h3>
+        <p>`LazyComponent` keeps placeholder UI visible until the wrapped slot actually intersects.</p>
+      </article>
     </section>
   </main>
 </template>
@@ -93,6 +101,7 @@ import { computed, ref } from 'vue'
 import type { DemoState, DirectiveDemoStates } from './demo'
 import DirectiveDemo from './components/directive.vue'
 import HookDemo from './components/hook.vue'
+import LazyComponentDemo from './components/lazy-component-demo.vue'
 import StateBadge from './components/state-badge.vue'
 
 const directiveStates = ref<DirectiveDemoStates>({
@@ -101,6 +110,7 @@ const directiveStates = ref<DirectiveDemoStates>({
 })
 
 const hookState = ref<DemoState>('idle')
+const lazyComponentState = ref<DemoState>('loading')
 
 const stateRows = computed(() => [
   {
@@ -118,6 +128,11 @@ const stateRows = computed(() => [
     label: 'Hook demo',
     state: hookState.value,
   },
+  {
+    description: 'Slot subtree mounts only after its wrapper intersects.',
+    label: 'LazyComponent',
+    state: lazyComponentState.value,
+  },
 ])
 
 function handleDirectiveStateChange(nextStates: DirectiveDemoStates): void {
@@ -126,6 +141,10 @@ function handleDirectiveStateChange(nextStates: DirectiveDemoStates): void {
 
 function handleHookStateChange(nextState: DemoState): void {
   hookState.value = nextState
+}
+
+function handleLazyComponentStateChange(nextState: DemoState): void {
+  lazyComponentState.value = nextState
 }
 </script>
 
@@ -298,7 +317,7 @@ pre {
 }
 
 .state-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .state-row {
@@ -313,7 +332,7 @@ pre {
 }
 
 .edge-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 @media (max-width: 900px) {

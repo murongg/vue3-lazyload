@@ -12,12 +12,13 @@ function mountExampleApp() {
 }
 
 describe('example app', () => {
-  it('renders the overview and both demo sections', () => {
+  it('renders the overview and all demo sections', () => {
     const wrapper = mountExampleApp()
 
     expect(wrapper.text()).toContain('vue3-lazyload')
     expect(wrapper.text()).toContain('Directive Demo')
     expect(wrapper.text()).toContain('Hook Demo')
+    expect(wrapper.text()).toContain('Lazy Component')
     expect(wrapper.text()).toContain('State Panel')
     expect(wrapper.text()).toContain('pnpm add vue3-lazyload')
   })

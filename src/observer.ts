@@ -1,14 +1,16 @@
 import type { NormalizedLazyValue, ObservedElementState } from './types'
 
-type IntersectHandler = (el: HTMLElement, value: NormalizedLazyValue) => void
+type DelayResolver<TValue> = (value: TValue) => number | undefined
+type IntersectHandler<TValue> = (el: HTMLElement, value: TValue) => void
 
-export class LazyObserver {
+export class LazyObserver<TValue = NormalizedLazyValue> {
   private observer?: IntersectionObserver
-  private readonly observedElements = new Map<HTMLElement, ObservedElementState>()
+  private readonly observedElements = new Map<HTMLElement, ObservedElementState<TValue>>()
 
   constructor(
     private observerOptions: IntersectionObserverInit,
-    private readonly onIntersect: IntersectHandler,
+    private readonly onIntersect: IntersectHandler<TValue>,
+    private readonly resolveDelay: DelayResolver<TValue> = () => undefined,
   ) {}
 
   public setOptions(observerOptions: IntersectionObserverInit): void {
@@ -24,7 +26,7 @@ export class LazyObserver {
       this.observe(el, state.value)
   }
 
-  public observe(el: HTMLElement, value: NormalizedLazyValue): void {
+  public observe(el: HTMLElement, value: TValue): void {
     this.unobserve(el)
     this.observedElements.set(el, { value })
     this.ensureObserver()
@@ -62,14 +64,16 @@ export class LazyObserver {
         continue
 
       if (entry.isIntersecting) {
-        if (state.value.delay && state.value.delay > 0) {
+        const delay = this.resolveDelay(state.value)
+
+        if (delay && delay > 0) {
           if (state.timeoutId)
             continue
 
           state.timeoutId = setTimeout(() => {
             state.timeoutId = undefined
             this.triggerLoad(el)
-          }, state.value.delay)
+          }, delay)
 
           continue
         }

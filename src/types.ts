@@ -10,6 +10,12 @@ export interface LazyOptions {
   observerOptions?: IntersectionObserverInit
 }
 
+export interface LazyComponentProps {
+  delay?: number
+  observerOptions?: IntersectionObserverInit
+  tag?: string
+}
+
 export interface ValueFormatterObject {
   delay?: number
   error?: string
@@ -35,9 +41,9 @@ export interface ResolvedLazyOptions extends Omit<LazyOptions, 'error' | 'lifecy
   observerOptions: IntersectionObserverInit
 }
 
-export interface ObservedElementState {
+export interface ObservedElementState<TValue = NormalizedLazyValue> {
   timeoutId?: ReturnType<typeof setTimeout>
-  value: NormalizedLazyValue
+  value: TValue
 }
 
 export enum LifecycleEnum {

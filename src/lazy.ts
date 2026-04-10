@@ -15,7 +15,7 @@ export default class Lazy {
     this.options = resolveLazyOptions(options)
     this.observer = new LazyObserver(this.options.observerOptions, (el, value) => {
       this.loadImages(el, value.src, value.error, value.lifecycle)
-    })
+    }, value => value.delay)
   }
 
   public config(options: LazyOptions = {}): void {
