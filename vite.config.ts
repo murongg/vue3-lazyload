@@ -24,7 +24,7 @@ export default defineConfig(({ mode }) => {
     test: {
       environment: 'happy-dom',
     },
-    base: process.env.NODE_ENV === 'production' ? '/vue3-lazyload/' : '/',
+    base: process.env.NODE_ENV === 'production' ? '/' : '/',
     build: isLibraryBuild
       ? {
           lib: {
